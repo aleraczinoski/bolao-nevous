@@ -7,7 +7,7 @@ import { MatchesService } from './matches.service';
 export class MatchesController {
   constructor(private readonly matchesService: MatchesService) {}
 
-  private static getUserId(req: Request & { user?: { sub: string } }) {
+  private static getUserId(req: Request) {
     return req.user?.sub;
   }
 

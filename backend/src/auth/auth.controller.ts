@@ -17,7 +17,7 @@ import { JwtAuthGuard } from './jwt-auth.guard';
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
-  private static getUserId(req: Request & { user?: { sub: string } }) {
+  private static getUserId(req: Request) {
     return req.user?.sub;
   }
 
