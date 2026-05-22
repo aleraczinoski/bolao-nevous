@@ -20,7 +20,7 @@ import { PredictionsService } from './predictions.service';
 export class PredictionsController {
   constructor(private readonly predictionsService: PredictionsService) {}
 
-  private static getUserId(req: Request & { user?: { sub: string } }) {
+  private static getUserId(req: Request) {
     return req.user?.sub;
   }
 
