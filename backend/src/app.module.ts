@@ -1,10 +1,24 @@
 import { Module } from '@nestjs/common';
+import { AdminModule } from './admin/admin.module';
 import { AppController } from './app.controller';
-import { AppService } from './app.service';
+import { AuthModule } from './auth/auth.module';
+import { MatchesModule } from './matches/matches.module';
+import { PredictionsModule } from './predictions/predictions.module';
+import { PrismaModule } from './prisma/prisma.module';
+import { RankingModule } from './ranking/ranking.module';
+import { ResultsSyncModule } from './results-sync/results-sync.module';
 
 @Module({
-  imports: [],
+  imports: [
+    PrismaModule,
+    AuthModule,
+    MatchesModule,
+    PredictionsModule,
+    RankingModule,
+    ResultsSyncModule,
+    AdminModule,
+  ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [],
 })
 export class AppModule {}
