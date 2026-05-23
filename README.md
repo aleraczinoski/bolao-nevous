@@ -49,6 +49,9 @@ Com o `.env` configurado, sincronize as tabelas com o banco de dados e inicializ
 # Cria as tabelas no PostgreSQL via Prisma
 npx pnpm prisma db push
 
+# Gera o Prisma Client para o TypeScript reconhecer os modelos e enums
+npx pnpm prisma generate
+
 # Inicializa o servidor do backend em modo de desenvolvimento
 npm run start:dev
 ```
