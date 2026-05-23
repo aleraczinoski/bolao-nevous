@@ -1,10 +1,11 @@
 import { Module } from '@nestjs/common';
-import { PrismaModule } from '../prisma/prisma.module';
-import { MatchesController } from './matches.controller';
+import { HttpModule } from '@nestjs/axios'; // <-- Importe aqui em cima
 import { MatchesService } from './matches.service';
+import { MatchesController } from './matches.controller';
+import { PrismaModule } from 'src/prisma/prisma.module';
 
 @Module({
-  imports: [PrismaModule],
+  imports: [HttpModule, PrismaModule],
   controllers: [MatchesController],
   providers: [MatchesService],
 })

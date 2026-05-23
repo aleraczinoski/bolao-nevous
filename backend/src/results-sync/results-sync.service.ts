@@ -1,5 +1,5 @@
 import { HttpException, Injectable, Logger } from '@nestjs/common';
-import { MatchStatus } from '../../generated/prisma/client';
+import { MatchStatus } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
 import { calculatePoints } from '../predictions/points';
 
@@ -33,9 +33,9 @@ export class ResultsSyncService {
   constructor(private readonly prisma: PrismaService) {}
 
   async syncCompetitionMatches() {
-    const apiKey = process.env.FOOTBALL_DATA_API_KEY;
+    const apiKey = process.env.FOOTBALL_API_KEY;
     if (!apiKey) {
-      throw new HttpException('FOOTBALL_DATA_API_KEY nao configurado.', 500);
+      throw new HttpException('FOOTBALL_API_KEY nao configurado.', 500);
     }
 
     const response = await fetch(
@@ -60,7 +60,11 @@ export class ResultsSyncService {
       const homeTeam = await this.upsertTeam(match.homeTeam);
       const awayTeam = await this.upsertTeam(match.awayTeam);
       const kickoffAt = new Date(match.utcDate);
-      const round = await this.upsertRound(match.stage, match.matchday, kickoffAt);
+      const round = await this.upsertRound(
+        match.stage,
+        match.matchday,
+        kickoffAt,
+      );
 
       const status = this.mapStatus(match.status);
       const homeScore = match.score.fullTime.home;
@@ -89,7 +93,11 @@ export class ResultsSyncService {
         },
       });
 
-      if (status === MatchStatus.FINISHED && homeScore !== null && awayScore !== null) {
+      if (
+        status === MatchStatus.FINISHED &&
+        homeScore !== null &&
+        awayScore !== null
+      ) {
         await this.recalculateMatchPoints(savedMatch.id, homeScore, awayScore);
       }
 
@@ -125,7 +133,11 @@ export class ResultsSyncService {
     return matchday ? `${stage} - Rodada ${matchday}` : stage;
   }
 
-  private async upsertRound(stage: string, matchday: number | null, kickoffAt: Date) {
+  private async upsertRound(
+    stage: string,
+    matchday: number | null,
+    kickoffAt: Date,
+  ) {
     const key = this.buildRoundKey(stage, matchday);
     const name = this.buildRoundName(stage, matchday);
     const existing = await this.prisma.round.findUnique({ where: { key } });
@@ -222,7 +234,10 @@ export class ResultsSyncService {
       await this.prisma.$transaction(updates);
     } catch (error) {
       const err = error as Error;
-      this.logger.error('Falha ao recalcular pontos.', err?.stack ?? String(error));
+      this.logger.error(
+        'Falha ao recalcular pontos.',
+        err?.stack ?? String(error),
+      );
     }
   }
 }

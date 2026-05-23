@@ -7,7 +7,7 @@ import {
   Post,
   UseGuards,
 } from '@nestjs/common';
-import { Role } from '../../generated/prisma/client';
+import { Role } from '@prisma/client';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { Roles } from '../auth/roles.decorator';
 import { RolesGuard } from '../auth/roles.guard';
@@ -32,10 +32,7 @@ export class AdminController {
   }
 
   @Patch('users/:id/active')
-  async updateActive(
-    @Param('id') id: string,
-    @Body() dto: UpdateActiveDto,
-  ) {
+  async updateActive(@Param('id') id: string, @Body() dto: UpdateActiveDto) {
     return this.adminService.updateActive(id, dto.active);
   }
 
