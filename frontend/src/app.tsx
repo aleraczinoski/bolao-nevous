@@ -4,6 +4,7 @@ import { Dashboard } from "./Pages/Dashboard";
 import { NotFound } from "./Pages/NotFound";
 import { Ranking } from "./Pages/Ranking";
 import { Profile } from "./Pages/Profile";
+import { Register } from "./Pages/Register";
 
 export function App() {
   return (
@@ -14,6 +15,7 @@ export function App() {
         <Route path='/dashboard' element={<Dashboard />} />
         <Route path='/ranking' element={<Ranking />} />
         <Route path='/profile' element={<Profile />} />
+        <Route path='/register' element={<Register />} />
         <Route path='*' element={<NotFound />} />
       </Routes>
     </BrowserRouter>
