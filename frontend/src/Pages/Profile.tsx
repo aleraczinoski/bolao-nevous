@@ -1,15 +1,51 @@
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 export function Profile() {
   const navigate = useNavigate();
+  const [user, setUser] = useState<any>(null);
+  const [isLoading, setIsLoading] = useState(true);
 
-  const usuario = {
-    nome: "Senhor Feudal",
-    email: "feudinho@email.com",
-    pontosTotais: 145,
-    posicaoRanking: 1,
-  };
+  useEffect(() => {
+    async function fetchProfile() {
+      const token = localStorage.getItem("@Bolao:token");
 
+      if (!token) {
+        navigate("/"); // Sem token? Volta pro login
+        return;
+      }
+
+      try {
+        const response = await fetch("http://localhost:3000/api/auth/me", {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+
+        if (!response.ok) {
+          throw new Error("Token inválido ou expirado");
+        }
+
+        const data = await response.json();
+        setUser(data);
+      } catch (error) {
+        console.error(error);
+        localStorage.removeItem("@Bolao:token");
+        navigate("/");
+      } finally {
+        setIsLoading(false);
+      }
+    }
+
+    fetchProfile();
+  }, [navigate]);
+
+  function handleLogout() {
+    localStorage.removeItem("@Bolao:token");
+    navigate("/");
+  }
+
+  // Histórico mockado (futuramente virá da API)
   const historico = [
     {
       id: 1,
@@ -17,7 +53,6 @@ export function Profile() {
       meuPalpite: "2 x 1",
       resultadoReal: "2 x 1",
       pontosGanhos: 5,
-      status: "acerto-exato",
     },
     {
       id: 2,
@@ -25,22 +60,22 @@ export function Profile() {
       meuPalpite: "1 x 0",
       resultadoReal: "2 x 0",
       pontosGanhos: 3,
-      status: "acerto-parcial",
-    },
-    {
-      id: 3,
-      jogo: "Japão x Espanha",
-      meuPalpite: "0 x 3",
-      resultadoReal: "2 x 1",
-      pontosGanhos: 0,
-      status: "erro",
     },
   ];
+
+  if (isLoading) {
+    return (
+      <div className='min-h-screen flex items-center justify-center'>
+        Carregando dados do jogador...
+      </div>
+    );
+  }
+
+  if (!user) return null;
 
   return (
     <div className='min-h-screen bg-gray-50 p-6'>
       <div className='max-w-3xl mx-auto'>
-        {/* Navegação Topo */}
         <div className='flex justify-between items-center mb-8'>
           <h1 className='text-3xl font-black text-gray-800 tracking-tight'>
             Meu Perfil
@@ -53,33 +88,26 @@ export function Profile() {
           </button>
         </div>
 
-        {/* Resumo do Jogador */}
         <div className='bg-blue-600 text-white rounded-2xl p-6 shadow-xl mb-8 flex items-center justify-between'>
           <div>
-            <h2 className='text-2xl font-bold'>{usuario.nome}</h2>
-            <p className='text-blue-200'>{usuario.email}</p>
+            <h2 className='text-2xl font-bold'>
+              {user.displayName || "Jogador"}
+            </h2>
+            <p className='text-blue-200'>{user.email}</p>
           </div>
           <div className='text-right flex gap-6'>
             <div>
-              <p className='text-4xl font-black'>{usuario.pontosTotais}</p>
+              <p className='text-4xl font-black'>145</p>
               <p className='text-xs uppercase font-bold text-blue-200 tracking-wider'>
                 Pontos
-              </p>
-            </div>
-            <div>
-              <p className='text-4xl font-black'>#{usuario.posicaoRanking}</p>
-              <p className='text-xs uppercase font-bold text-blue-200 tracking-wider'>
-                No Ranking
               </p>
             </div>
           </div>
         </div>
 
-        {/* Histórico de Palpites */}
         <h3 className='text-xl font-bold text-gray-800 mb-4'>
           Meus Últimos Palpites
         </h3>
-
         <div className='flex flex-col gap-4'>
           {historico.map((item) => (
             <div
@@ -101,16 +129,8 @@ export function Profile() {
                   </span>
                 </div>
               </div>
-
-              {/* Tag de Pontuação */}
               <div
-                className={`px-4 py-2 rounded-lg font-bold text-center ${
-                  item.pontosGanhos === 5
-                    ? "bg-green-100 text-green-700"
-                    : item.pontosGanhos > 0
-                      ? "bg-yellow-100 text-yellow-700"
-                      : "bg-red-100 text-red-700"
-                }`}
+                className={`px-4 py-2 rounded-lg font-bold text-center ${item.pontosGanhos === 5 ? "bg-green-100 text-green-700" : "bg-yellow-100 text-yellow-700"}`}
               >
                 +{item.pontosGanhos} pts
               </div>
@@ -118,10 +138,9 @@ export function Profile() {
           ))}
         </div>
 
-        {/* Botão de Logout (Sem função real por enquanto) */}
         <div className='mt-12 text-center border-t border-gray-200 pt-8'>
           <button
-            onClick={() => navigate("/")}
+            onClick={handleLogout}
             className='text-red-500 font-bold hover:text-red-700'
           >
             Sair da Conta
