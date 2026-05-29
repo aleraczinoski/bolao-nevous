@@ -1,22 +1,12 @@
-import { randomBytes, scryptSync, timingSafeEqual } from 'crypto';
+import * as bcrypt from 'bcryptjs';
 
-const SALT_LENGTH = 16;
-const KEY_LENGTH = 64;
-
-export function hashPassword(password: string): string {
-  const salt = randomBytes(SALT_LENGTH);
-  const derived = scryptSync(password, salt, KEY_LENGTH);
-  return `${salt.toString('hex')}.${derived.toString('hex')}`;
+export async function hashPassword(password: string): Promise<string> {
+  return bcrypt.hash(password, 10);
 }
 
-export function verifyPassword(password: string, stored: string): boolean {
-  const [saltHex, hashHex] = stored.split('.');
-  if (!saltHex || !hashHex) {
-    return false;
-  }
-
-  const salt = Buffer.from(saltHex, 'hex');
-  const hash = Buffer.from(hashHex, 'hex');
-  const derived = scryptSync(password, salt, hash.length);
-  return timingSafeEqual(hash, derived);
+export async function verifyPassword(
+  password: string,
+  hash: string,
+): Promise<boolean> {
+  return bcrypt.compare(password, hash);
 }
