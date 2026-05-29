@@ -1,28 +1,14 @@
-import { CanActivate, ExecutionContext, Injectable } from '@nestjs/common';
-import { JwtService } from '@nestjs/jwt';
+import { ExecutionContext, Injectable } from '@nestjs/common';
+import { AuthGuard } from '@nestjs/passport';
 
 @Injectable()
-export class OptionalJwtAuthGuard implements CanActivate {
-  constructor(private readonly jwtService: JwtService) {}
+export class OptionalJwtAuthGuard extends AuthGuard('jwt') {
+  canActivate(context: ExecutionContext) {
+    return super.canActivate(context);
+  }
 
-  async canActivate(context: ExecutionContext): Promise<boolean> {
-    const request = context.switchToHttp().getRequest();
-    const authHeader = request.headers.authorization;
-
-    if (!authHeader || !authHeader.startsWith('Bearer ')) {
-      return true;
-    }
-
-    const token = authHeader.slice('Bearer '.length);
-    try {
-      const payload = await this.jwtService.verifyAsync(token, {
-        secret: process.env.JWT_SECRET ?? 'dev-secret',
-      });
-      request.user = payload;
-    } catch {
-      return true;
-    }
-
-    return true;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  handleRequest(_err: any, user: any): any {
+    return user ?? null;
   }
 }

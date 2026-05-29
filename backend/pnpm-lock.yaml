@@ -35,6 +35,9 @@ importers:
       axios:
         specifier: ^1.16.1
         version: 1.16.1
+      bcryptjs:
+        specifier: ^3.0.3
+        version: 3.0.3
       class-transformer:
         specifier: ^0.5.1
         version: 0.5.1
@@ -75,6 +78,9 @@ importers:
       '@nestjs/testing':
         specifier: ^11.0.1
         version: 11.1.22(@nestjs/common@11.1.22(class-transformer@0.5.1)(class-validator@0.15.1)(reflect-metadata@0.2.2)(rxjs@7.8.2))(@nestjs/core@11.1.22)(@nestjs/platform-express@11.1.22)
+      '@types/bcryptjs':
+        specifier: ^3.0.0
+        version: 3.0.0
       '@types/express':
         specifier: ^5.0.0
         version: 5.0.6
@@ -87,6 +93,9 @@ importers:
       '@types/passport-google-oauth20':
         specifier: ^2.0.17
         version: 2.0.17
+      '@types/passport-jwt':
+        specifier: ^4.0.1
+        version: 4.0.1
       '@types/pg':
         specifier: ^8.20.0
         version: 8.20.0
@@ -987,6 +996,10 @@ packages:
   '@types/babel__traverse@7.28.0':
     resolution: {integrity: sha512-8PvcXf70gTDZBgt9ptxJ8elBeBjcLOAcOtoO/mPJjtji1+CdGbHgm77om1GrsPxsiE+uXIpNSK64UYaIwQXd4Q==}
 
+  '@types/bcryptjs@3.0.0':
+    resolution: {integrity: sha512-WRZOuCuaz8UcZZE4R5HXTco2goQSI2XxjGY3hbM/xDvwmqFWd4ivooImsMx65OKM6CtNKbnZ5YL+YwAwK7c1dg==}
+    deprecated: This is a stub types definition. bcryptjs provides its own type definitions, so you do not need this installed.
+
   '@types/body-parser@1.19.6':
     resolution: {integrity: sha512-HLFeCYgz89uk22N5Qg3dvGvsv46B8GLvKKo1zKG4NybA8U2DiEO3w9lqGg29t/tfLRJpJ6iQxnVw4OnB7MoM9g==}
 
@@ -1047,8 +1060,14 @@ packages:
   '@types/passport-google-oauth20@2.0.17':
     resolution: {integrity: sha512-MHNOd2l7gOTCn3iS+wInPQMiukliAUvMpODO3VlXxOiwNEMSyzV7UNvAdqxSN872o8OXx1SqPDVT6tLW74AtqQ==}
 
+  '@types/passport-jwt@4.0.1':
+    resolution: {integrity: sha512-Y0Ykz6nWP4jpxgEUYq8NoVZeCQPo1ZndJLfapI249g1jHChvRfZRO/LS3tqu26YgAS/laI1qx98sYGz0IalRXQ==}
+
   '@types/passport-oauth2@1.8.0':
     resolution: {integrity: sha512-6//z+4orIOy/g3zx17HyQ71GSRK4bs7Sb+zFasRoc2xzlv7ZCJ+vkDBYFci8U6HY+or6Zy7ajf4mz4rK7nsWJQ==}
+
+  '@types/passport-strategy@0.2.38':
+    resolution: {integrity: sha512-GC6eMqqojOooq993Tmnmp7AUTbbQSgilyvpCYQjT+H6JfG/g6RGc7nXEniZlp0zyKJ0WUdOiZWLBZft9Yug1uA==}
 
   '@types/passport@1.0.17':
     resolution: {integrity: sha512-aciLyx+wDwT2t2/kJGJR2AEeBz0nJU4WuRX04Wu9Dqc5lSUtwu0WERPHYsLhF9PtseiAMPBGNUOtFjxZ56prsg==}
@@ -1491,6 +1510,10 @@ packages:
   baseline-browser-mapping@2.10.31:
     resolution: {integrity: sha512-MujYO3eP72uvmSE0i4wltsodRfIpZATP3jvzRNRGGxgzId7aVocVJJV3nf01qnzzKFGxQVC9bpWxl5cjxTr/7Q==}
     engines: {node: '>=6.0.0'}
+    hasBin: true
+
+  bcryptjs@3.0.3:
+    resolution: {integrity: sha512-GlF5wPWnSa/X5LKM1o0wz0suXIINz1iHRLvTS+sLyi7XPbe5ycmYI3DlZqVGZZtDgl4DmasFg7gOB3JYbphV5g==}
     hasBin: true
 
   better-result@2.9.2:
@@ -4657,6 +4680,10 @@ snapshots:
     dependencies:
       '@babel/types': 7.29.0
 
+  '@types/bcryptjs@3.0.0':
+    dependencies:
+      bcryptjs: 3.0.3
+
   '@types/body-parser@1.19.6':
     dependencies:
       '@types/connect': 3.4.38
@@ -4735,10 +4762,20 @@ snapshots:
       '@types/passport': 1.0.17
       '@types/passport-oauth2': 1.8.0
 
+  '@types/passport-jwt@4.0.1':
+    dependencies:
+      '@types/jsonwebtoken': 9.0.10
+      '@types/passport-strategy': 0.2.38
+
   '@types/passport-oauth2@1.8.0':
     dependencies:
       '@types/express': 5.0.6
       '@types/oauth': 0.9.6
+      '@types/passport': 1.0.17
+
+  '@types/passport-strategy@0.2.38':
+    dependencies:
+      '@types/express': 5.0.6
       '@types/passport': 1.0.17
 
   '@types/passport@1.0.17':
@@ -5210,6 +5247,8 @@ snapshots:
   base64url@3.0.1: {}
 
   baseline-browser-mapping@2.10.31: {}
+
+  bcryptjs@3.0.3: {}
 
   better-result@2.9.2: {}
 

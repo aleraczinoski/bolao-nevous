@@ -29,7 +29,7 @@ export class AuthService {
       data: {
         email,
         displayName: dto.displayName.trim(),
-        passwordHash: hashPassword(dto.password),
+        passwordHash: await hashPassword(dto.password),
         role: Role.USER,
         active: true,
       },
@@ -44,7 +44,7 @@ export class AuthService {
   async login(dto: LoginDto) {
     const email = dto.email.trim().toLowerCase();
     const user = await this.prisma.user.findUnique({ where: { email } });
-    if (!user || !verifyPassword(dto.password, user.passwordHash)) {
+    if (!user || !(await verifyPassword(dto.password, user.passwordHash))) {
       throw new UnauthorizedException('Credenciais invalidas.');
     }
 
