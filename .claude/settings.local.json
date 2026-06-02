@@ -1,0 +1,10 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(python3 -m pip install fpdf2 -q)",
+      "Bash(node -e \"require\\('pdfkit'\\)\")",
+      "Bash(node -e \"require\\('puppeteer'\\)\")",
+      "Bash(npm install *)"
+    ]
+  }
+}

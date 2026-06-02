@@ -1,19 +1,20 @@
-import { Controller, Get, Post } from '@nestjs/common';
+import { Controller, Get, Req, UseGuards } from '@nestjs/common';
+import type { Request } from 'express';
+import { OptionalJwtAuthGuard } from '../auth/optional-jwt-auth.guard';
 import { MatchesService } from './matches.service';
 
 @Controller('matches')
 export class MatchesController {
   constructor(private readonly matchesService: MatchesService) {}
 
-  // Rota para o React listar os jogos na tela
-  @Get()
-  findAll() {
-    return this.matchesService.findAll();
+  private static getUserId(req: any) {
+    return req.user?.sub;
   }
 
-  // Rota para puxar os dados mais recentes da API externa
-  @Post('sync')
-  syncMatches() {
-    return this.matchesService.syncExternalMatches();
+  @Get()
+  @UseGuards(OptionalJwtAuthGuard)
+  async list(@Req() req: Request) {
+    const userId = MatchesController.getUserId(req);
+    return this.matchesService.listMatches(userId);
   }
 }
