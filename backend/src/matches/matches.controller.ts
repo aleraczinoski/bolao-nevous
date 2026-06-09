@@ -15,6 +15,6 @@ export class MatchesController {
   @UseGuards(OptionalJwtAuthGuard)
   async list(@Req() req: Request) {
     const userId = MatchesController.getUserId(req);
-    return this.matchesService.listMatches(userId);
+    return this.matchesService.findAll();
   }
 }
