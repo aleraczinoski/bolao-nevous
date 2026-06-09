@@ -1,8 +1,11 @@
 import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
+import { api } from "../services/api";
+import { useAuth } from "../contexts/AuthContext";
 
 export function Register() {
   const navigate = useNavigate();
+  const { signIn } = useAuth();
   const [displayName, setDisplayName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -15,28 +18,12 @@ export function Register() {
     setIsLoading(true);
 
     try {
-      const response = await fetch("http://localhost:3000/api/auth/register", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, displayName, password }),
-      });
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        // Se o e-mail já existir, o NestJS deve retornar uma mensagem de erro aqui
-        throw new Error(
-          data.message || "Erro ao criar conta. Tente novamente.",
-        );
-      }
-
-      // Sucesso! Salva o token recém-gerado no navegador
-      localStorage.setItem("@Bolao:token", data.accessToken);
-
-      // Redireciona o novo jogador direto para o perfil
-      navigate("/profile");
+      const { data } = await api.post("/auth/register", { email, displayName, password });
+      signIn(data.accessToken, data.user);
+      navigate("/dashboard");
     } catch (err: any) {
-      setError(err.message);
+      const msg = err.response?.data?.message;
+      setError(Array.isArray(msg) ? msg.join(", ") : msg ?? "Erro ao criar conta. Tente novamente.");
     } finally {
       setIsLoading(false);
     }

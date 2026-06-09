@@ -1,4 +1,5 @@
 import { HttpException, Injectable, Logger } from '@nestjs/common';
+import { Cron, CronExpression } from '@nestjs/schedule';
 import { MatchStatus } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
 import { calculatePoints } from '../predictions/points';
@@ -32,6 +33,7 @@ export class ResultsSyncService {
 
   constructor(private readonly prisma: PrismaService) {}
 
+  @Cron(CronExpression.EVERY_5_MINUTES)
   async syncCompetitionMatches() {
     const apiKey = process.env.FOOTBALL_API_KEY;
     if (!apiKey) {

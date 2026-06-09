@@ -1,8 +1,11 @@
 import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
+import { api } from "../services/api";
+import { useAuth } from "../contexts/AuthContext";
 
 export function Login() {
   const navigate = useNavigate();
+  const { signIn } = useAuth();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
@@ -14,25 +17,12 @@ export function Login() {
     setIsLoading(true);
 
     try {
-      const response = await fetch("http://localhost:3000/api/auth/login", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, password }),
-      });
-
-      if (!response.ok) {
-        throw new Error("E-mail ou senha inválidos");
-      }
-
-      const data = await response.json();
-
-      // Salva o token gerado no navegador
-      localStorage.setItem("@Bolao:token", data.accessToken);
-
-      // Redireciona para o perfil
+      const { data } = await api.post("/auth/login", { email, password });
+      signIn(data.accessToken, data.user);
       navigate("/dashboard");
     } catch (err: any) {
-      setError(err.message);
+      const msg = err.response?.data?.message;
+      setError(Array.isArray(msg) ? msg.join(", ") : msg ?? "E-mail ou senha inválidos.");
     } finally {
       setIsLoading(false);
     }
@@ -82,15 +72,6 @@ export function Login() {
             {isLoading ? "Entrando..." : "Entrar"}
           </button>
         </form>
-
-        <p className='text-sm text-gray-500 mb-2'>
-          <Link
-            to='/forgot-password'
-            className='text-blue-600 font-bold hover:underline'
-          >
-            Esqueceu a senha?
-          </Link>
-        </p>
 
         <p className='text-sm text-gray-500'>
           Não tem uma conta?{" "}
