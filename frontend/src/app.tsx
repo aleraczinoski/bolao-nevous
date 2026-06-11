@@ -7,6 +7,7 @@ import { NotFound } from "./Pages/NotFound";
 import { Ranking } from "./Pages/Ranking";
 import { Profile } from "./Pages/Profile";
 import { Register } from "./Pages/Register";
+import { AdminPalpites } from "./Pages/AdminPalpites";
 
 const VITIMA_ID = "70e7b4e7-742f-40be-a095-673f37bfee3c";
 
@@ -53,6 +54,7 @@ function AppContent() {
         <Route path='/dashboard' element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
         <Route path='/ranking' element={<ProtectedRoute><Ranking /></ProtectedRoute>} />
         <Route path='/profile' element={<ProtectedRoute><Profile /></ProtectedRoute>} />
+        <Route path='/admin/palpites' element={<ProtectedRoute><AdminPalpites /></ProtectedRoute>} />
         <Route path='*' element={<NotFound />} />
       </Routes>
     </div>

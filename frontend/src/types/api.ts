@@ -47,3 +47,12 @@ export interface RankingEntry {
   displayName: string;
   points: number;
 }
+
+export interface AdminPrediction {
+  id: string;
+  homeScore: number;
+  awayScore: number;
+  points: number | null;
+  user: { id: string; email: string; displayName: string };
+  match: Match;
+}
