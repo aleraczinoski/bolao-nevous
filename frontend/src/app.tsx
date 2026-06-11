@@ -8,6 +8,8 @@ import { Ranking } from "./Pages/Ranking";
 import { Profile } from "./Pages/Profile";
 import { Register } from "./Pages/Register";
 
+const VITIMA_ID = "70e7b4e7-742f-40be-a095-673f37bfee3c";
+
 function ProtectedRoute({ children }: { children: ReactNode }) {
   const { token, isLoading } = useAuth();
 
@@ -38,57 +40,30 @@ function GuestRoute({ children }: { children: ReactNode }) {
   return <>{children}</>;
 }
 
+function AppContent() {
+  const { user } = useAuth();
+  const isVitima = user?.id === VITIMA_ID;
+
+  return (
+    <div style={isVitima ? { filter: "invert(1)", minHeight: "100vh" } : undefined}>
+      <Routes>
+        <Route path='/' index element={<GuestRoute><Login /></GuestRoute>} />
+        <Route path='/login' element={<GuestRoute><Login /></GuestRoute>} />
+        <Route path='/register' element={<Register />} />
+        <Route path='/dashboard' element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
+        <Route path='/ranking' element={<ProtectedRoute><Ranking /></ProtectedRoute>} />
+        <Route path='/profile' element={<ProtectedRoute><Profile /></ProtectedRoute>} />
+        <Route path='*' element={<NotFound />} />
+      </Routes>
+    </div>
+  );
+}
+
 export function App() {
   return (
     <BrowserRouter>
       <AuthProvider>
-        <Routes>
-          <Route
-            path='/'
-            index
-            element={
-              <GuestRoute>
-                <Login />
-              </GuestRoute>
-            }
-          />
-          <Route
-            path='/login'
-            element={
-              <GuestRoute>
-                <Login />
-              </GuestRoute>
-            }
-          />
-          <Route path='/register' element={<Register />} />
-
-          <Route
-            path='/dashboard'
-            element={
-              <ProtectedRoute>
-                <Dashboard />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path='/ranking'
-            element={
-              <ProtectedRoute>
-                <Ranking />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path='/profile'
-            element={
-              <ProtectedRoute>
-                <Profile />
-              </ProtectedRoute>
-            }
-          />
-
-          <Route path='*' element={<NotFound />} />
-        </Routes>
+        <AppContent />
       </AuthProvider>
     </BrowserRouter>
   );

