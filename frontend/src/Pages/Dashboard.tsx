@@ -38,7 +38,7 @@ export function Dashboard() {
     if (cachedMatches && cachedPreds) {
       const matches: Match[] = JSON.parse(cachedMatches);
       const preds: Prediction[] = JSON.parse(cachedPreds);
-      setJogos(matches.filter((m) => m.status !== "FINISHED"));
+      setJogos(matches.filter((m) => m.status === "SCHEDULED"));
       const { mapa, inputsMapa } = buildPredMaps(preds);
       setPalpites(mapa);
       setInputs(inputsMapa);
@@ -56,7 +56,7 @@ export function Dashboard() {
         sessionStorage.setItem(CACHE_MATCHES, JSON.stringify(matchesRes.data));
         sessionStorage.setItem(CACHE_PREDS, JSON.stringify(predsRes.data));
 
-        setJogos(matchesRes.data.filter((m) => m.status !== "FINISHED"));
+        setJogos(matchesRes.data.filter((m) => m.status === "SCHEDULED"));
         const { mapa, inputsMapa } = buildPredMaps(predsRes.data);
         setPalpites(mapa);
         setInputs(inputsMapa);
@@ -134,8 +134,7 @@ export function Dashboard() {
     {} as Record<string, Match[]>,
   );
 
-  function labelBotao(matchId: string, status: string) {
-    if (status === "FINISHED") return "Palpites Encerrados";
+  function labelBotao(matchId: string) {
     const s = saveStates[matchId] ?? "idle";
     if (s === "saving") return "Salvando...";
     if (s === "saved") return "Salvo!";
@@ -143,8 +142,7 @@ export function Dashboard() {
     return palpites[matchId] ? "Atualizar Palpite" : "Salvar Palpite";
   }
 
-  function corBotao(matchId: string, status: string) {
-    if (status === "FINISHED") return "bg-gray-300 cursor-not-allowed";
+  function corBotao(matchId: string) {
     const s = saveStates[matchId] ?? "idle";
     if (s === "saved") return "bg-green-600 hover:bg-green-700";
     if (s === "error") return "bg-red-600 hover:bg-red-700";
@@ -218,78 +216,73 @@ export function Dashboard() {
 
                 <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6'>
                   {jogosAgrupados[data].map((jogo) => {
-                    const encerrado = jogo.status === "FINISHED";
                     const input = inputs[jogo.id] ?? { home: "", away: "" };
                     const salvando = saveStates[jogo.id] === "saving";
 
                     return (
                       <div
                         key={jogo.id}
-                        className='border rounded-xl p-5 shadow-lg bg-white flex flex-col items-center'
+                        className='border rounded-xl p-4 sm:p-5 shadow-lg bg-white flex flex-col items-center'
                       >
                         <p className='text-xs text-gray-400 mb-4 font-bold uppercase tracking-wider'>
-                          {encerrado
-                            ? `Encerrado ${jogo.homeScore} x ${jogo.awayScore}`
-                            : new Date(jogo.kickoffAt).toLocaleTimeString(
-                                "pt-BR",
-                                { hour: "2-digit", minute: "2-digit" },
-                              )}
+                          {new Date(jogo.kickoffAt).toLocaleTimeString("pt-BR", {
+                            hour: "2-digit",
+                            minute: "2-digit",
+                          })}
                         </p>
 
-                        <div className='flex w-full items-center justify-between mb-6 px-4'>
-                          <div className='flex flex-col items-center w-1/3 text-center'>
+                        <div className='flex w-full items-center justify-between mb-5'>
+                          <div className='flex flex-col items-center w-[38%] text-center gap-1'>
                             <img
                               src={jogo.homeTeam.crestUrl}
                               alt={jogo.homeTeam.name}
-                              className='w-12 h-12 mb-2 object-contain'
+                              className='w-10 h-10 sm:w-12 sm:h-12 object-contain'
                             />
-                            <span className='font-semibold text-sm'>
+                            <span className='font-semibold text-xs sm:text-sm leading-tight line-clamp-2'>
                               {jogo.homeTeam.name}
                             </span>
                           </div>
 
-                          <div className='flex items-center gap-3 w-1/3 justify-center'>
+                          <div className='flex items-center gap-1 sm:gap-2 w-[24%] justify-center'>
                             <input
                               type='number'
                               min={0}
-                              className='w-12 h-12 border-2 rounded text-center text-lg font-bold bg-gray-50 focus:border-blue-500 outline-none disabled:bg-gray-100 disabled:text-gray-400'
+                              className='w-9 h-10 sm:w-11 sm:h-11 border-2 rounded text-center text-base sm:text-lg font-bold bg-gray-50 focus:border-blue-500 outline-none'
                               value={input.home}
                               onChange={(e) =>
                                 handleInput(jogo.id, "home", e.target.value)
                               }
-                              disabled={encerrado}
                             />
-                            <span className='text-gray-400 font-bold'>X</span>
+                            <span className='text-gray-400 font-bold text-sm'>x</span>
                             <input
                               type='number'
                               min={0}
-                              className='w-12 h-12 border-2 rounded text-center text-lg font-bold bg-gray-50 focus:border-blue-500 outline-none disabled:bg-gray-100 disabled:text-gray-400'
+                              className='w-9 h-10 sm:w-11 sm:h-11 border-2 rounded text-center text-base sm:text-lg font-bold bg-gray-50 focus:border-blue-500 outline-none'
                               value={input.away}
                               onChange={(e) =>
                                 handleInput(jogo.id, "away", e.target.value)
                               }
-                              disabled={encerrado}
                             />
                           </div>
 
-                          <div className='flex flex-col items-center w-1/3 text-center'>
+                          <div className='flex flex-col items-center w-[38%] text-center gap-1'>
                             <img
                               src={jogo.awayTeam.crestUrl}
                               alt={jogo.awayTeam.name}
-                              className='w-12 h-12 mb-2 object-contain'
+                              className='w-10 h-10 sm:w-12 sm:h-12 object-contain'
                             />
-                            <span className='font-semibold text-sm'>
+                            <span className='font-semibold text-xs sm:text-sm leading-tight line-clamp-2'>
                               {jogo.awayTeam.name}
                             </span>
                           </div>
                         </div>
 
                         <button
-                          disabled={encerrado || salvando}
+                          disabled={salvando}
                           onClick={() => salvarPalpite(jogo.id)}
-                          className={`w-full text-white py-3 rounded-lg font-bold transition-colors ${corBotao(jogo.id, jogo.status)}`}
+                          className={`w-full text-white py-3 rounded-lg font-bold transition-colors ${corBotao(jogo.id)}`}
                         >
-                          {labelBotao(jogo.id, jogo.status)}
+                          {labelBotao(jogo.id)}
                         </button>
                       </div>
                     );
