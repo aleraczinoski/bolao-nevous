@@ -15,4 +15,4 @@ RUN pnpm exec prisma generate
 RUN pnpm run build
 
 EXPOSE 3000
-CMD ["sh", "-c", "node_modules/.bin/prisma db push && node dist/src/main"]
+CMD ["node", "dist/src/main"]
