@@ -59,6 +59,10 @@ export class ResultsSyncService {
     let updatedMatches = 0;
 
     for (const match of payload.matches) {
+      if (!match.homeTeam?.name || !match.awayTeam?.name) {
+        continue;
+      }
+
       const homeTeam = await this.upsertTeam(match.homeTeam);
       const awayTeam = await this.upsertTeam(match.awayTeam);
       const kickoffAt = new Date(match.utcDate);

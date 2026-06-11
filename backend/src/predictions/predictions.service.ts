@@ -8,8 +8,6 @@ import { PrismaService } from '../prisma/prisma.service';
 import { CreatePredictionDto } from './dto/create-prediction.dto';
 import { UpdatePredictionDto } from './dto/update-prediction.dto';
 
-const ROUND_LOCK_MINUTES = 60;
-
 @Injectable()
 export class PredictionsService {
   constructor(private readonly prisma: PrismaService) {}
@@ -17,22 +15,16 @@ export class PredictionsService {
   async create(userId: string, dto: CreatePredictionDto) {
     const match = await this.prisma.match.findUnique({
       where: { id: dto.matchId },
-      include: { round: true },
     });
 
     if (!match) {
       throw new NotFoundException('Partida nao encontrada.');
     }
 
-    this.assertRoundOpen(match.round.startAt);
+    this.assertMatchOpen(match.kickoffAt);
 
     const existing = await this.prisma.prediction.findUnique({
-      where: {
-        userId_matchId: {
-          userId,
-          matchId: dto.matchId,
-        },
-      },
+      where: { userId_matchId: { userId, matchId: dto.matchId } },
     });
 
     if (existing) {
@@ -53,7 +45,7 @@ export class PredictionsService {
   async update(userId: string, id: string, dto: UpdatePredictionDto) {
     const prediction = await this.prisma.prediction.findUnique({
       where: { id },
-      include: { match: { include: { round: true } } },
+      include: { match: true },
     });
 
     if (!prediction) {
@@ -64,7 +56,7 @@ export class PredictionsService {
       throw new ForbiddenException('Nao e permitido editar este palpite.');
     }
 
-    this.assertRoundOpen(prediction.match.round.startAt);
+    this.assertMatchOpen(prediction.match.kickoffAt);
 
     return this.prisma.prediction.update({
       where: { id },
@@ -92,10 +84,9 @@ export class PredictionsService {
     });
   }
 
-  private assertRoundOpen(roundStartAt: Date) {
-    const lockTime = new Date(roundStartAt.getTime() - ROUND_LOCK_MINUTES * 60000);
-    if (Date.now() >= lockTime.getTime()) {
-      throw new ForbiddenException('Palpites bloqueados para esta rodada.');
+  private assertMatchOpen(kickoffAt: Date) {
+    if (Date.now() >= kickoffAt.getTime()) {
+      throw new ForbiddenException('Palpites bloqueados: a partida ja comecou.');
     }
   }
 }
