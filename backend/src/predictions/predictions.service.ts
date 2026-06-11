@@ -85,9 +85,8 @@ export class PredictionsService {
   }
 
   private assertMatchOpen(kickoffAt: Date) {
-    const ONE_HOUR_MS = 60 * 60 * 1000;
-    if (Date.now() >= kickoffAt.getTime() - ONE_HOUR_MS) {
-      throw new ForbiddenException('Palpites bloqueados: falta menos de 1 hora para a partida.');
+    if (Date.now() >= kickoffAt.getTime()) {
+      throw new ForbiddenException('Palpites bloqueados: a partida ja comecou.');
     }
   }
 }
