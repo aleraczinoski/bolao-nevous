@@ -216,6 +216,10 @@ export function Dashboard() {
     {} as Record<string, Match[]>,
   );
 
+  function palpiteBloqueado(kickoffAt: string) {
+    return Date.now() >= new Date(kickoffAt).getTime() - 60 * 60 * 1000;
+  }
+
   function labelBotao(matchId: string) {
     const s = saveStates[matchId] ?? "idle";
     if (s === "saving") return "Salvando...";
@@ -302,6 +306,7 @@ export function Dashboard() {
                   {jogosAgrupados[data].map((jogo) => {
                     const input = inputs[jogo.id] ?? { home: "", away: "" };
                     const salvando = saveStates[jogo.id] === "saving";
+                    const bloqueado = palpiteBloqueado(jogo.kickoffAt);
 
                     return (
                       <div
@@ -331,7 +336,8 @@ export function Dashboard() {
                             <input
                               type='number'
                               min={0}
-                              className='w-9 h-10 sm:w-11 sm:h-11 border-2 rounded text-center text-base sm:text-lg font-bold bg-gray-50 focus:border-blue-500 outline-none'
+                              disabled={bloqueado}
+                              className='w-9 h-10 sm:w-11 sm:h-11 border-2 rounded text-center text-base sm:text-lg font-bold bg-gray-50 focus:border-blue-500 outline-none disabled:opacity-50 disabled:cursor-not-allowed'
                               value={input.home}
                               onChange={(e) =>
                                 handleInput(jogo.id, "home", e.target.value)
@@ -341,7 +347,8 @@ export function Dashboard() {
                             <input
                               type='number'
                               min={0}
-                              className='w-9 h-10 sm:w-11 sm:h-11 border-2 rounded text-center text-base sm:text-lg font-bold bg-gray-50 focus:border-blue-500 outline-none'
+                              disabled={bloqueado}
+                              className='w-9 h-10 sm:w-11 sm:h-11 border-2 rounded text-center text-base sm:text-lg font-bold bg-gray-50 focus:border-blue-500 outline-none disabled:opacity-50 disabled:cursor-not-allowed'
                               value={input.away}
                               onChange={(e) =>
                                 handleInput(jogo.id, "away", e.target.value)
@@ -361,13 +368,19 @@ export function Dashboard() {
                           </div>
                         </div>
 
-                        <button
-                          disabled={salvando}
-                          onClick={() => salvarPalpite(jogo.id)}
-                          className={`w-full text-white py-3 rounded-lg font-bold transition-colors ${corBotao(jogo.id)}`}
-                        >
-                          {labelBotao(jogo.id)}
-                        </button>
+                        {bloqueado ? (
+                          <div className='w-full py-3 rounded-lg font-bold text-center text-sm bg-red-50 text-red-400 border border-red-200'>
+                            Palpites encerrados
+                          </div>
+                        ) : (
+                          <button
+                            disabled={salvando}
+                            onClick={() => salvarPalpite(jogo.id)}
+                            className={`w-full text-white py-3 rounded-lg font-bold transition-colors ${corBotao(jogo.id)}`}
+                          >
+                            {labelBotao(jogo.id)}
+                          </button>
+                        )}
                       </div>
                     );
                   })}
