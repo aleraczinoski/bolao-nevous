@@ -34,6 +34,18 @@ export function Profile() {
 
   const totalPontos = historico.reduce((acc, p) => acc + (p.points ?? 0), 0);
 
+  function badgePontos(pts: number) {
+    if (pts === 0) return { label: "Errou", cls: "bg-gray-100 text-gray-500" };
+    if (pts === 1) return { label: "1 pt", cls: "bg-gray-200 text-gray-600" };
+    if (pts === 2) return { label: "+Perdedor", cls: "bg-yellow-100 text-yellow-700" };
+    if (pts === 3) return { label: "+Diferença", cls: "bg-orange-100 text-orange-700" };
+    if (pts === 4) return { label: "+Vencedor", cls: "bg-blue-100 text-blue-700" };
+    if (pts === 5) return { label: "+Vencedor+Gol", cls: "bg-purple-100 text-purple-700" };
+    if (pts === 6) return { label: "Exato!", cls: "bg-green-100 text-green-700" };
+    if (pts === 7) return { label: "Exato+Goleada!", cls: "bg-emerald-100 text-emerald-700" };
+    return { label: `+${pts} pts`, cls: "bg-green-100 text-green-700" };
+  }
+
   if (!user) return null;
 
   return (
@@ -112,16 +124,11 @@ export function Profile() {
                   </div>
 
                   {encerrado && item.points != null ? (
-                    <div
-                      className={`px-4 py-2 rounded-lg font-bold text-center min-w-[64px] ${
-                        item.points >= 3
-                          ? "bg-green-100 text-green-700"
-                          : item.points === 1
-                            ? "bg-yellow-100 text-yellow-700"
-                            : "bg-gray-100 text-gray-500"
-                      }`}
-                    >
-                      +{item.points} pts
+                    <div className='flex flex-col items-center gap-0.5 min-w-[72px]'>
+                      <div className={`px-3 py-1.5 rounded-lg font-bold text-center text-xs w-full ${badgePontos(item.points).cls}`}>
+                        {badgePontos(item.points).label}
+                      </div>
+                      <span className='text-xs text-gray-400 font-semibold'>{item.points} pts</span>
                     </div>
                   ) : (
                     <div className='px-4 py-2 rounded-lg font-bold text-center min-w-[64px] bg-gray-100 text-gray-400'>
