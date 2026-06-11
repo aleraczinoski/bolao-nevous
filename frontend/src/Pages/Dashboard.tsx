@@ -3,6 +3,88 @@ import { useNavigate } from "react-router-dom";
 import { api } from "../services/api";
 import type { Match, Prediction } from "../types/api";
 
+function CardPontuacao() {
+  const [aberto, setAberto] = useState(false);
+
+  return (
+    <div className='border border-gray-200 rounded-xl bg-white shadow-sm mb-8 overflow-hidden'>
+      <button
+        onClick={() => setAberto((v) => !v)}
+        className='w-full flex items-center justify-between px-5 py-3 text-left hover:bg-gray-50 transition-colors'
+      >
+        <span className='font-bold text-gray-700 text-sm'>Como funciona a pontuação?</span>
+        <span className='text-gray-400 text-lg'>{aberto ? "▲" : "▼"}</span>
+      </button>
+
+      {aberto && (
+        <div className='px-5 pb-5 pt-1 border-t border-gray-100'>
+          <div className='flex flex-col sm:flex-row gap-4'>
+            <div className='flex-1'>
+              <p className='text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2'>Base</p>
+              <div className='flex items-center justify-between py-1'>
+                <span className='text-sm text-gray-700'>Acertou o resultado</span>
+                <span className='text-sm font-bold text-gray-600'>1 pt</span>
+              </div>
+            </div>
+
+            <div className='hidden sm:block w-px bg-gray-100' />
+
+            <div className='flex-1'>
+              <p className='text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2'>Bônus exclusivo</p>
+              <div className='flex flex-col gap-1'>
+                <div className='flex items-center justify-between py-1'>
+                  <div className='flex items-center gap-2'>
+                    <span className='w-2 h-2 rounded-full bg-green-500 inline-block'></span>
+                    <span className='text-sm text-gray-700'>Placar Exato</span>
+                  </div>
+                  <span className='text-sm font-bold text-green-600'>+5 pts</span>
+                </div>
+                <div className='flex items-center justify-between py-1'>
+                  <div className='flex items-center gap-2'>
+                    <span className='w-2 h-2 rounded-full bg-blue-500 inline-block'></span>
+                    <span className='text-sm text-gray-700'>Placar Vencedor</span>
+                  </div>
+                  <span className='text-sm font-bold text-blue-600'>+3 pts</span>
+                </div>
+                <div className='flex items-center justify-between py-1'>
+                  <div className='flex items-center gap-2'>
+                    <span className='w-2 h-2 rounded-full bg-cyan-500 inline-block'></span>
+                    <span className='text-sm text-gray-700'>Diferença de Gols</span>
+                  </div>
+                  <span className='text-sm font-bold text-cyan-600'>+2 pts</span>
+                </div>
+                <div className='flex items-center justify-between py-1'>
+                  <div className='flex items-center gap-2'>
+                    <span className='w-2 h-2 rounded-full bg-purple-500 inline-block'></span>
+                    <span className='text-sm text-gray-700'>Placar Perdedor</span>
+                  </div>
+                  <span className='text-sm font-bold text-purple-600'>+1 pt</span>
+                </div>
+              </div>
+            </div>
+
+            <div className='hidden sm:block w-px bg-gray-100' />
+
+            <div className='flex-1'>
+              <p className='text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2'>Extra</p>
+              <div className='flex items-center justify-between py-1'>
+                <div className='flex items-center gap-2'>
+                  <span className='w-2 h-2 rounded-full bg-yellow-500 inline-block'></span>
+                  <span className='text-sm text-gray-700'>Goleada (≥3 gols de diff)</span>
+                </div>
+                <span className='text-sm font-bold text-yellow-600'>+1 pt</span>
+              </div>
+              <p className='text-xs text-gray-400 mt-2 leading-relaxed'>
+                Só vale se você também previu uma goleada. O bônus extra acumula com o bônus exclusivo.
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
 interface PredictionInput {
   home: string;
   away: string;
@@ -171,6 +253,8 @@ export function Dashboard() {
             <span className='hidden sm:inline'>Perfil</span> 👤
           </button>
         </div>
+
+        <CardPontuacao />
 
         {carregando ? (
           <div className='flex flex-col gap-10 animate-pulse'>
