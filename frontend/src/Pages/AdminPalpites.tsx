@@ -61,7 +61,7 @@ export function AdminPalpites() {
           <h1 className="text-2xl font-black tracking-tighter text-white">
             📋 <span className="text-blue-400">Palpites</span> das Partidas
           </h1>
-          <p className="text-slate-500 text-sm mt-1">Resultados das partidas finalizadas</p>
+          <p className="text-slate-500 text-sm mt-1">Palpites das partidas em andamento e finalizadas</p>
         </div>
         <button onClick={() => navigate("/dashboard")} className="hidden md:block text-slate-500 hover:text-slate-300 text-sm font-semibold transition-colors">
           ← Voltar
@@ -105,7 +105,7 @@ export function AdminPalpites() {
         ) : palpites.length === 0 ? (
           <div className="bg-slate-900 border border-slate-800 rounded-2xl p-12 text-center">
             <p className="text-3xl mb-3">⚽</p>
-            <p className="text-slate-400 font-semibold">Nenhuma partida finalizada ainda.</p>
+            <p className="text-slate-400 font-semibold">Nenhum palpite disponível ainda.</p>
           </div>
         ) : filtrados.length === 0 ? (
           <div className="bg-slate-900 border border-slate-800 rounded-2xl p-12 text-center">
@@ -138,7 +138,11 @@ export function AdminPalpites() {
                     </div>
                     <div className="bg-slate-800 border border-slate-700 rounded-xl p-2.5 text-center">
                       <p className="text-xs text-slate-500 font-bold uppercase tracking-wider mb-1">Resultado</p>
-                      <p className="text-white font-black">{p.match.homeScore} × {p.match.awayScore}</p>
+                      {p.match.homeScore !== null && p.match.awayScore !== null ? (
+                        <p className="text-white font-black">{p.match.homeScore} × {p.match.awayScore}</p>
+                      ) : (
+                        <p className="text-slate-500 font-bold text-xs">Em andamento</p>
+                      )}
                     </div>
                   </div>
                 </div>

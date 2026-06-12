@@ -70,7 +70,7 @@ export class PredictionsService {
 
   async listFinished() {
     return this.prisma.prediction.findMany({
-      where: { match: { status: 'FINISHED' } },
+      where: { match: { kickoffAt: { lte: new Date() } } },
       include: {
         user: { select: { id: true, displayName: true } },
         match: {

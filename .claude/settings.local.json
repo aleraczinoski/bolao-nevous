@@ -8,7 +8,9 @@
       "PowerShell(docker exec bolao-nevous-db-1 psql -U bolao_user -d bolao_db -c \"\\\\dt\" 2>&1)",
       "PowerShell(docker compose -f \"c:\\\\GitHub\\\\bolao-nevous\\\\docker-compose.yml\" logs backend --tail=50 2>&1)",
       "PowerShell(docker exec bolao-nevous-db-1 psql -U bolao_user -d bolao_db -c \"SELECT id, email, \\\\\"displayName\\\\\", role, active FROM \\\\\"User\\\\\";\" 2>&1)",
-      "Bash(docker exec *)"
+      "Bash(docker exec *)",
+      "Bash(xargs grep -l \"scoring\\\\|pontuacao\\\\|points\")",
+      "Bash(xargs grep -l \"calculatePoints\\\\|getWinner\")"
     ]
   }
 }
