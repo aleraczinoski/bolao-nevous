@@ -3,6 +3,19 @@ import { useNavigate } from "react-router-dom";
 import { api } from "../services/api";
 import { useAuth } from "../contexts/AuthContext";
 import type { Prediction } from "../types/api";
+import { NavBar } from "../components/NavBar";
+
+function badgePontos(pts: number): { label: string; cls: string } {
+  if (pts === 0) return { label: "Errou", cls: "bg-slate-800 text-slate-500 border border-slate-700" };
+  if (pts === 1) return { label: "Resultado", cls: "bg-slate-700 text-slate-300 border border-slate-600" };
+  if (pts === 2) return { label: "+Perdedor", cls: "bg-amber-500/20 text-amber-400 border border-amber-500/30" };
+  if (pts === 3) return { label: "+Diferença", cls: "bg-orange-500/20 text-orange-400 border border-orange-500/30" };
+  if (pts === 4) return { label: "+Vencedor", cls: "bg-blue-500/20 text-blue-400 border border-blue-500/30" };
+  if (pts === 5) return { label: "+Vencedor+Gol", cls: "bg-purple-500/20 text-purple-400 border border-purple-500/30" };
+  if (pts === 6) return { label: "Placar Exato!", cls: "bg-green-500/20 text-green-400 border border-green-500/30" };
+  if (pts === 7) return { label: "Exato+Goleada!", cls: "bg-emerald-500/20 text-emerald-400 border border-emerald-500/30" };
+  return { label: `${pts} pts`, cls: "bg-blue-500/20 text-blue-400 border border-blue-500/30" };
+}
 
 export function Profile() {
   const navigate = useNavigate();
@@ -33,123 +46,130 @@ export function Profile() {
   }
 
   const totalPontos = historico.reduce((acc, p) => acc + (p.points ?? 0), 0);
-
-  function badgePontos(pts: number) {
-    if (pts === 0) return { label: "Errou", cls: "bg-gray-100 text-gray-500" };
-    if (pts === 1) return { label: "1 pt", cls: "bg-gray-200 text-gray-600" };
-    if (pts === 2) return { label: "+Perdedor", cls: "bg-yellow-100 text-yellow-700" };
-    if (pts === 3) return { label: "+Diferença", cls: "bg-orange-100 text-orange-700" };
-    if (pts === 4) return { label: "+Vencedor", cls: "bg-blue-100 text-blue-700" };
-    if (pts === 5) return { label: "+Vencedor+Gol", cls: "bg-purple-100 text-purple-700" };
-    if (pts === 6) return { label: "Exato!", cls: "bg-green-100 text-green-700" };
-    if (pts === 7) return { label: "Exato+Goleada!", cls: "bg-emerald-100 text-emerald-700" };
-    return { label: `+${pts} pts`, cls: "bg-green-100 text-green-700" };
-  }
+  const finalizados = historico.filter((p) => p.match.status === "FINISHED");
+  const acertos = finalizados.filter((p) => (p.points ?? 0) > 0).length;
+  const taxa = finalizados.length > 0 ? Math.round((acertos / finalizados.length) * 100) : 0;
 
   if (!user) return null;
 
   return (
-    <div className='min-h-screen bg-gray-50 p-6'>
-      <div className='max-w-3xl mx-auto'>
-        <div className='flex justify-between items-center mb-8'>
-          <h1 className='text-3xl font-black text-gray-800 tracking-tight'>
-            Meu Perfil
-          </h1>
-          <button
-            onClick={() => navigate("/dashboard")}
-            className='text-blue-600 font-bold hover:underline'
-          >
-            Voltar aos Jogos
+    <div className="min-h-screen bg-slate-950 pb-24 md:pb-8">
+      <main className="max-w-3xl mx-auto px-4 pt-6">
+        {/* Hero card */}
+        <div className="relative bg-gradient-to-br from-blue-600 to-blue-800 rounded-2xl p-6 mb-6 overflow-hidden">
+          <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_rgba(255,255,255,0.1)_0%,_transparent_70%)]" />
+          <div className="relative flex items-center justify-between">
+            <div>
+              <div className="w-12 h-12 rounded-2xl bg-white/20 flex items-center justify-center text-2xl mb-3">
+                {user.displayName[0]?.toUpperCase()}
+              </div>
+              <h2 className="text-xl font-black text-white">{user.displayName}</h2>
+              <p className="text-blue-200 text-sm">{user.email}</p>
+            </div>
+            <div className="text-right">
+              <p className="text-5xl font-black text-white leading-none">{totalPontos}</p>
+              <p className="text-xs uppercase font-bold text-blue-200 tracking-wider mt-1">pontos totais</p>
+            </div>
+          </div>
+        </div>
+
+        {/* Stats row */}
+        <div className="grid grid-cols-3 gap-3 mb-6">
+          <div className="bg-slate-900 border border-slate-800 rounded-xl p-4 text-center">
+            <p className="text-2xl font-black text-white">{historico.length}</p>
+            <p className="text-xs text-slate-500 font-bold uppercase tracking-wider mt-1">Palpites</p>
+          </div>
+          <div className="bg-slate-900 border border-slate-800 rounded-xl p-4 text-center">
+            <p className="text-2xl font-black text-emerald-400">{acertos}</p>
+            <p className="text-xs text-slate-500 font-bold uppercase tracking-wider mt-1">Acertos</p>
+          </div>
+          <div className="bg-slate-900 border border-slate-800 rounded-xl p-4 text-center">
+            <p className="text-2xl font-black text-blue-400">{taxa}%</p>
+            <p className="text-xs text-slate-500 font-bold uppercase tracking-wider mt-1">Taxa</p>
+          </div>
+        </div>
+
+        <div className="flex items-center justify-between mb-4">
+          <h3 className="text-sm font-bold text-slate-500 uppercase tracking-widest">Histórico de Palpites</h3>
+          <button onClick={() => navigate("/dashboard")} className="hidden md:block text-slate-500 hover:text-slate-300 text-sm font-semibold transition-colors">
+            ← Voltar
           </button>
         </div>
 
-        <div className='bg-blue-600 text-white rounded-2xl p-6 shadow-xl mb-8 flex items-center justify-between'>
-          <div>
-            <h2 className='text-2xl font-bold'>{user.displayName}</h2>
-            <p className='text-blue-200'>{user.email}</p>
-          </div>
-          <div className='text-right'>
-            <p className='text-4xl font-black'>{totalPontos}</p>
-            <p className='text-xs uppercase font-bold text-blue-200 tracking-wider'>
-              Pontos
-            </p>
-          </div>
-        </div>
-
-        <h3 className='text-xl font-bold text-gray-800 mb-4'>
-          Meus Palpites
-        </h3>
-
         {carregando ? (
-          <div className='flex flex-col gap-4 animate-pulse'>
+          <div className="flex flex-col gap-3">
             {[1, 2, 3].map((i) => (
-              <div key={i} className='bg-white border border-gray-200 rounded-xl p-5 h-20' />
+              <div key={i} className="bg-slate-900 border border-slate-800 rounded-xl h-20 animate-pulse" />
             ))}
           </div>
         ) : historico.length === 0 ? (
-          <div className='bg-white border border-gray-200 rounded-xl p-8 text-center text-gray-400 font-semibold'>
-            Você ainda não fez nenhum palpite.
+          <div className="bg-slate-900 border border-slate-800 rounded-2xl p-10 text-center">
+            <p className="text-3xl mb-3">📋</p>
+            <p className="text-slate-400 font-semibold">Você ainda não fez nenhum palpite.</p>
           </div>
         ) : (
-          <div className='flex flex-col gap-4'>
+          <div className="flex flex-col gap-2.5">
             {historico.map((item) => {
               const { match } = item;
-              const nomeJogo = `${match.homeTeam.name} x ${match.awayTeam.name}`;
-              const meuPalpite = `${item.homeScore} x ${item.awayScore}`;
               const encerrado = match.status === "FINISHED";
               const resultadoReal =
-                encerrado && match.homeScore != null
-                  ? `${match.homeScore} x ${match.awayScore}`
-                  : "—";
+                encerrado && match.homeScore != null ? `${match.homeScore} × ${match.awayScore}` : null;
+              const badge = encerrado && item.points != null ? badgePontos(item.points) : null;
 
               return (
                 <div
                   key={item.id}
-                  className='bg-white border border-gray-200 rounded-xl p-5 flex justify-between items-center shadow-sm'
+                  className="bg-slate-900 border border-slate-800 rounded-xl p-4 flex items-center justify-between gap-3"
                 >
-                  <div>
-                    <p className='font-bold text-gray-800 mb-1'>{nomeJogo}</p>
-                    <div className='flex gap-4 text-sm font-medium flex-wrap'>
-                      <span className='text-gray-500'>
-                        Meu palpite:{" "}
-                        <strong className='text-gray-800'>{meuPalpite}</strong>
+                  <div className="min-w-0">
+                    <div className="flex items-center gap-2 mb-1.5">
+                      <img src={match.homeTeam.crestUrl} alt="" className="w-5 h-5 object-contain" />
+                      <span className="text-white text-sm font-semibold truncate">{match.homeTeam.name}</span>
+                      <span className="text-slate-600 text-xs font-black">x</span>
+                      <span className="text-white text-sm font-semibold truncate">{match.awayTeam.name}</span>
+                      <img src={match.awayTeam.crestUrl} alt="" className="w-5 h-5 object-contain" />
+                    </div>
+                    <div className="flex items-center gap-3 text-xs text-slate-500 font-medium">
+                      <span>
+                        Palpite: <strong className="text-slate-300">{item.homeScore} × {item.awayScore}</strong>
                       </span>
-                      {encerrado && (
-                        <span className='text-gray-500'>
-                          Oficial:{" "}
-                          <strong className='text-gray-800'>{resultadoReal}</strong>
+                      {resultadoReal && (
+                        <span>
+                          Oficial: <strong className="text-slate-300">{resultadoReal}</strong>
                         </span>
                       )}
                     </div>
                   </div>
 
-                  {encerrado && item.points != null ? (
-                    <div className='flex flex-col items-center gap-0.5 min-w-[72px]'>
-                      <div className={`px-3 py-1.5 rounded-lg font-bold text-center text-xs w-full ${badgePontos(item.points).cls}`}>
-                        {badgePontos(item.points).label}
-                      </div>
-                      <span className='text-xs text-gray-400 font-semibold'>{item.points} pts</span>
+                  {badge ? (
+                    <div className="shrink-0 flex flex-col items-center gap-1">
+                      <span className={`px-2.5 py-1 rounded-lg text-xs font-bold border ${badge.cls}`}>
+                        {badge.label}
+                      </span>
+                      <span className="text-xs text-slate-600 font-bold">{item.points} pts</span>
                     </div>
-                  ) : (
-                    <div className='px-4 py-2 rounded-lg font-bold text-center min-w-[64px] bg-gray-100 text-gray-400'>
+                  ) : !encerrado ? (
+                    <span className="shrink-0 text-xs text-slate-600 font-bold bg-slate-800 px-3 py-1.5 rounded-lg border border-slate-700">
                       Pendente
-                    </div>
-                  )}
+                    </span>
+                  ) : null}
                 </div>
               );
             })}
           </div>
         )}
 
-        <div className='mt-12 text-center border-t border-gray-200 pt-8'>
+        <div className="mt-10 pt-6 border-t border-slate-800 text-center">
           <button
             onClick={handleLogout}
-            className='text-red-500 font-bold hover:text-red-700'
+            className="text-red-500 hover:text-red-400 font-bold text-sm transition-colors"
           >
             Sair da Conta
           </button>
         </div>
-      </div>
+      </main>
+
+      <NavBar />
     </div>
   );
 }

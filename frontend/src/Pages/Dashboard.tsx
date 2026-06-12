@@ -2,94 +2,9 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { api } from "../services/api";
 import type { Match, Prediction } from "../types/api";
+import { NavBar } from "../components/NavBar";
 
-function CardPontuacao() {
-  const [aberto, setAberto] = useState(false);
-
-  return (
-    <div className='border border-gray-200 rounded-xl bg-white shadow-sm mb-8 overflow-hidden'>
-      <button
-        onClick={() => setAberto((v) => !v)}
-        className='w-full flex items-center justify-between px-5 py-3 text-left hover:bg-gray-50 transition-colors'
-      >
-        <span className='font-bold text-gray-700 text-sm'>Como funciona a pontuação?</span>
-        <span className='text-gray-400 text-lg'>{aberto ? "▲" : "▼"}</span>
-      </button>
-
-      {aberto && (
-        <div className='px-5 pb-5 pt-1 border-t border-gray-100'>
-          <div className='flex flex-col sm:flex-row gap-4'>
-            <div className='flex-1'>
-              <p className='text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2'>Base</p>
-              <div className='flex items-center justify-between py-1'>
-                <span className='text-sm text-gray-700'>Acertou o resultado</span>
-                <span className='text-sm font-bold text-gray-600'>1 pt</span>
-              </div>
-            </div>
-
-            <div className='hidden sm:block w-px bg-gray-100' />
-
-            <div className='flex-1'>
-              <p className='text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2'>Bônus exclusivo</p>
-              <div className='flex flex-col gap-1'>
-                <div className='flex items-center justify-between py-1'>
-                  <div className='flex items-center gap-2'>
-                    <span className='w-2 h-2 rounded-full bg-green-500 inline-block'></span>
-                    <span className='text-sm text-gray-700'>Placar Exato</span>
-                  </div>
-                  <span className='text-sm font-bold text-green-600'>+5 pts</span>
-                </div>
-                <div className='flex items-center justify-between py-1'>
-                  <div className='flex items-center gap-2'>
-                    <span className='w-2 h-2 rounded-full bg-blue-500 inline-block'></span>
-                    <span className='text-sm text-gray-700'>Placar Vencedor</span>
-                  </div>
-                  <span className='text-sm font-bold text-blue-600'>+3 pts</span>
-                </div>
-                <div className='flex items-center justify-between py-1'>
-                  <div className='flex items-center gap-2'>
-                    <span className='w-2 h-2 rounded-full bg-cyan-500 inline-block'></span>
-                    <span className='text-sm text-gray-700'>Diferença de Gols</span>
-                  </div>
-                  <span className='text-sm font-bold text-cyan-600'>+2 pts</span>
-                </div>
-                <div className='flex items-center justify-between py-1'>
-                  <div className='flex items-center gap-2'>
-                    <span className='w-2 h-2 rounded-full bg-purple-500 inline-block'></span>
-                    <span className='text-sm text-gray-700'>Placar Perdedor</span>
-                  </div>
-                  <span className='text-sm font-bold text-purple-600'>+1 pt</span>
-                </div>
-              </div>
-            </div>
-
-            <div className='hidden sm:block w-px bg-gray-100' />
-
-            <div className='flex-1'>
-              <p className='text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2'>Extra</p>
-              <div className='flex items-center justify-between py-1'>
-                <div className='flex items-center gap-2'>
-                  <span className='w-2 h-2 rounded-full bg-yellow-500 inline-block'></span>
-                  <span className='text-sm text-gray-700'>Goleada (≥3 gols de diff)</span>
-                </div>
-                <span className='text-sm font-bold text-yellow-600'>+1 pt</span>
-              </div>
-              <p className='text-xs text-gray-400 mt-2 leading-relaxed'>
-                Só vale se você também previu uma goleada. O bônus extra acumula com o bônus exclusivo.
-              </p>
-            </div>
-          </div>
-        </div>
-      )}
-    </div>
-  );
-}
-
-interface PredictionInput {
-  home: string;
-  away: string;
-}
-
+interface PredictionInput { home: string; away: string; }
 type SaveState = "idle" | "saving" | "saved" | "error";
 
 const CACHE_MATCHES = "bolao:matches";
@@ -105,6 +20,57 @@ function buildPredMaps(preds: Prediction[]) {
   return { mapa, inputsMapa };
 }
 
+function CardPontuacao() {
+  const [aberto, setAberto] = useState(false);
+  const bonuses = [
+    { dot: "bg-green-500", label: "Placar Exato", pts: "+5", color: "text-green-400" },
+    { dot: "bg-blue-500", label: "Placar Vencedor", pts: "+3", color: "text-blue-400" },
+    { dot: "bg-cyan-500", label: "Diferença de Gols", pts: "+2", color: "text-cyan-400" },
+    { dot: "bg-purple-500", label: "Placar Perdedor", pts: "+1", color: "text-purple-400" },
+    { dot: "bg-amber-500", label: "Goleada (diff ≥ 3)", pts: "+1", color: "text-amber-400" },
+  ];
+
+  return (
+    <div className="bg-slate-900 border border-slate-800 rounded-2xl mb-6 overflow-hidden">
+      <button
+        onClick={() => setAberto((v) => !v)}
+        className="w-full flex items-center justify-between px-5 py-3.5 text-left hover:bg-slate-800/50 transition-colors"
+      >
+        <span className="text-slate-300 font-semibold text-sm">Como funciona a pontuação?</span>
+        <span className="text-slate-500 text-sm">{aberto ? "▲" : "▼"}</span>
+      </button>
+
+      {aberto && (
+        <div className="px-5 pb-5 border-t border-slate-800">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-4">
+            <div>
+              <p className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Base</p>
+              <div className="flex justify-between items-center py-1">
+                <span className="text-sm text-slate-300">Acertou o resultado</span>
+                <span className="text-sm font-bold text-slate-400">1 pt</span>
+              </div>
+            </div>
+            <div className="sm:col-span-2">
+              <p className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Bônus exclusivo + extra</p>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-6">
+                {bonuses.map((b) => (
+                  <div key={b.label} className="flex justify-between items-center py-1">
+                    <div className="flex items-center gap-2">
+                      <span className={`w-2 h-2 rounded-full ${b.dot}`} />
+                      <span className="text-sm text-slate-300">{b.label}</span>
+                    </div>
+                    <span className={`text-sm font-bold ${b.color}`}>{b.pts}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
 export function Dashboard() {
   const [jogos, setJogos] = useState<Match[]>([]);
   const [palpites, setPalpites] = useState<Record<string, Prediction>>({});
@@ -114,7 +80,6 @@ export function Dashboard() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    // Mostra cache imediatamente se disponível
     const cachedMatches = sessionStorage.getItem(CACHE_MATCHES);
     const cachedPreds = sessionStorage.getItem(CACHE_PREDS);
     if (cachedMatches && cachedPreds) {
@@ -127,266 +92,202 @@ export function Dashboard() {
       setCarregando(false);
     }
 
-    // Busca dados frescos em segundo plano
     async function carregar() {
       try {
         const [matchesRes, predsRes] = await Promise.all([
           api.get<Match[]>("/matches"),
           api.get<Prediction[]>("/predictions/me"),
         ]);
-
         sessionStorage.setItem(CACHE_MATCHES, JSON.stringify(matchesRes.data));
         sessionStorage.setItem(CACHE_PREDS, JSON.stringify(predsRes.data));
-
         setJogos(matchesRes.data.filter((m) => m.status === "SCHEDULED"));
         const { mapa, inputsMapa } = buildPredMaps(predsRes.data);
         setPalpites(mapa);
         setInputs(inputsMapa);
-      } catch (erro) {
-        console.error("Erro ao carregar dados:", erro);
+      } catch (e) {
+        console.error(e);
       } finally {
         setCarregando(false);
       }
     }
-
     carregar();
   }, []);
 
   function handleInput(matchId: string, side: "home" | "away", value: string) {
-    setInputs((prev) => ({
-      ...prev,
-      [matchId]: { ...prev[matchId], [side]: value },
-    }));
+    setInputs((prev) => ({ ...prev, [matchId]: { ...prev[matchId], [side]: value } }));
   }
 
   async function salvarPalpite(matchId: string) {
     const input = inputs[matchId];
-    if (input?.home === "" || input?.away === "") return;
-
+    if (!input || input.home === "" || input.away === "") return;
     const homeScore = parseInt(input.home, 10);
     const awayScore = parseInt(input.away, 10);
-
     if (isNaN(homeScore) || isNaN(awayScore)) return;
 
     setSaveStates((prev) => ({ ...prev, [matchId]: "saving" }));
-
     try {
-      const palpiteExistente = palpites[matchId];
-
-      if (palpiteExistente) {
-        const { data } = await api.put<Prediction>(
-          `/predictions/${palpiteExistente.id}`,
-          { homeScore, awayScore },
-        );
-        setPalpites((prev) => ({ ...prev, [matchId]: data }));
-      } else {
-        const { data } = await api.post<Prediction>("/predictions", {
-          matchId,
-          homeScore,
-          awayScore,
-        });
-        setPalpites((prev) => ({ ...prev, [matchId]: data }));
-      }
-
-      // Invalida cache de predictions para próxima visita buscar dados frescos
+      const existing = palpites[matchId];
+      const { data } = existing
+        ? await api.put<Prediction>(`/predictions/${existing.id}`, { homeScore, awayScore })
+        : await api.post<Prediction>("/predictions", { matchId, homeScore, awayScore });
+      setPalpites((prev) => ({ ...prev, [matchId]: data }));
       sessionStorage.removeItem(CACHE_PREDS);
-
       setSaveStates((prev) => ({ ...prev, [matchId]: "saved" }));
-      setTimeout(() => {
-        setSaveStates((prev) => ({ ...prev, [matchId]: "idle" }));
-      }, 2000);
-    } catch (err: any) {
+      setTimeout(() => setSaveStates((prev) => ({ ...prev, [matchId]: "idle" })), 2000);
+    } catch {
       setSaveStates((prev) => ({ ...prev, [matchId]: "error" }));
-      setTimeout(() => {
-        setSaveStates((prev) => ({ ...prev, [matchId]: "idle" }));
-      }, 3000);
+      setTimeout(() => setSaveStates((prev) => ({ ...prev, [matchId]: "idle" })), 3000);
     }
   }
 
-  const jogosAgrupados = jogos.reduce(
-    (grupos, jogo) => {
-      const dataFormatada = new Date(jogo.kickoffAt).toLocaleDateString(
-        "pt-BR",
-        { day: "2-digit", month: "2-digit", year: "numeric" },
-      );
-      if (!grupos[dataFormatada]) grupos[dataFormatada] = [];
-      grupos[dataFormatada].push(jogo);
-      return grupos;
-    },
-    {} as Record<string, Match[]>,
-  );
+  const jogosAgrupados = jogos.reduce((grupos, jogo) => {
+    const data = new Date(jogo.kickoffAt).toLocaleDateString("pt-BR", {
+      weekday: "long", day: "2-digit", month: "long",
+    });
+    if (!grupos[data]) grupos[data] = [];
+    grupos[data].push(jogo);
+    return grupos;
+  }, {} as Record<string, Match[]>);
 
   function palpiteBloqueado(kickoffAt: string) {
     return Date.now() >= new Date(kickoffAt).getTime();
   }
 
-  function labelBotao(matchId: string) {
+  function botaoEstado(matchId: string) {
     const s = saveStates[matchId] ?? "idle";
-    if (s === "saving") return "Salvando...";
-    if (s === "saved") return "Salvo!";
-    if (s === "error") return "Erro ao salvar";
-    return palpites[matchId] ? "Atualizar Palpite" : "Salvar Palpite";
-  }
-
-  function corBotao(matchId: string) {
-    const s = saveStates[matchId] ?? "idle";
-    if (s === "saved") return "bg-green-600 hover:bg-green-700";
-    if (s === "error") return "bg-red-600 hover:bg-red-700";
-    return "bg-blue-600 hover:bg-blue-700";
+    if (s === "saving") return { label: "Salvando...", cls: "bg-slate-700 cursor-not-allowed" };
+    if (s === "saved") return { label: "✓ Salvo!", cls: "bg-emerald-600" };
+    if (s === "error") return { label: "Erro ao salvar", cls: "bg-red-600" };
+    return {
+      label: palpites[matchId] ? "Atualizar Palpite" : "Salvar Palpite",
+      cls: "bg-blue-600 hover:bg-blue-500",
+    };
   }
 
   return (
-    <div className='min-h-screen bg-gray-50 p-6'>
-      <div className='max-w-7xl mx-auto'>
-        <div className='flex justify-between items-center mb-10'>
-          <div className='flex items-center gap-2'>
+    <div className="min-h-screen bg-slate-950 pb-24 md:pb-8">
+      {/* Desktop header */}
+      <header className="hidden md:flex items-center justify-between px-8 py-4 border-b border-slate-800 bg-slate-900/80 sticky top-0 z-40 backdrop-blur">
+        <h1 className="text-xl font-black tracking-tighter">
+          <span className="text-blue-400">BOLÃO</span><span className="text-white"> NEVOUS</span> ❄️
+        </h1>
+        <nav className="flex items-center gap-2">
+          {[
+            { path: "/ranking", label: "🏆 Ranking" },
+            { path: "/palpites", label: "📋 Palpites" },
+            { path: "/profile", label: "👤 Perfil" },
+          ].map((item) => (
             <button
-              onClick={() => navigate("/ranking")}
-              className='bg-white border border-gray-200 text-gray-700 px-4 py-2 rounded-xl font-bold shadow-sm hover:bg-gray-100 transition-colors flex items-center gap-2'
+              key={item.path}
+              onClick={() => navigate(item.path)}
+              className="px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white text-sm font-semibold transition-colors"
             >
-              🏆 <span className='hidden sm:inline'>Ranking</span>
+              {item.label}
             </button>
-            <button
-              onClick={() => navigate("/palpites")}
-              className='bg-white border border-gray-200 text-gray-700 px-4 py-2 rounded-xl font-bold shadow-sm hover:bg-gray-100 transition-colors flex items-center gap-2'
-            >
-              📋 <span className='hidden sm:inline'>Palpites</span>
-            </button>
-          </div>
+          ))}
+        </nav>
+      </header>
 
-          <h1 className='text-2xl md:text-3xl font-black text-blue-600 tracking-tighter text-center'>
-            BOLÃO<span className='text-gray-800'> NEVOUS</span> ❄️
-          </h1>
+      {/* Mobile header */}
+      <header className="md:hidden flex items-center justify-center px-5 pt-5 pb-2">
+        <h1 className="text-2xl font-black tracking-tighter">
+          <span className="text-blue-400">BOLÃO</span><span className="text-white"> NEVOUS</span> ❄️
+        </h1>
+      </header>
 
-          <button
-            onClick={() => navigate("/profile")}
-            className='bg-white border border-gray-200 text-gray-700 px-4 py-2 rounded-xl font-bold shadow-sm hover:bg-gray-100 transition-colors flex items-center gap-2'
-          >
-            <span className='hidden sm:inline'>Perfil</span> 👤
-          </button>
-        </div>
-
+      <main className="max-w-5xl mx-auto px-4 pt-4 md:pt-8">
         <CardPontuacao />
 
         {carregando ? (
-          <div className='flex flex-col gap-10 animate-pulse'>
-            {[1, 2].map((diaVazio) => (
-              <div key={diaVazio} className='flex flex-col gap-4'>
-                <div className='h-6 bg-gray-300 rounded w-48 mx-auto mb-2'></div>
-                <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6'>
-                  {[1, 2, 3].map((cardVazio) => (
-                    <div
-                      key={cardVazio}
-                      className='border rounded-xl p-5 shadow-sm bg-white flex flex-col items-center'
-                    >
-                      <div className='h-4 bg-gray-200 rounded w-16 mb-6'></div>
-                      <div className='flex w-full items-center justify-between mb-6 px-4'>
-                        <div className='flex flex-col items-center w-1/3'>
-                          <div className='w-12 h-12 bg-gray-200 rounded-full mb-2'></div>
-                          <div className='h-4 bg-gray-200 rounded w-16'></div>
-                        </div>
-                        <div className='flex items-center gap-3 w-1/3 justify-center'>
-                          <div className='w-12 h-12 bg-gray-200 rounded-lg'></div>
-                          <span className='text-gray-200 font-bold'>X</span>
-                          <div className='w-12 h-12 bg-gray-200 rounded-lg'></div>
-                        </div>
-                        <div className='flex flex-col items-center w-1/3'>
-                          <div className='w-12 h-12 bg-gray-200 rounded-full mb-2'></div>
-                          <div className='h-4 bg-gray-200 rounded w-16'></div>
-                        </div>
-                      </div>
-                      <div className='w-full h-12 bg-gray-200 rounded-lg'></div>
-                    </div>
+          <div className="flex flex-col gap-8">
+            {[1, 2].map((g) => (
+              <div key={g} className="flex flex-col gap-3">
+                <div className="h-5 bg-slate-800 rounded w-48 animate-pulse" />
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                  {[1, 2, 3].map((c) => (
+                    <div key={c} className="h-44 bg-slate-900 rounded-2xl animate-pulse border border-slate-800" />
                   ))}
                 </div>
               </div>
             ))}
           </div>
+        ) : Object.keys(jogosAgrupados).length === 0 ? (
+          <div className="bg-slate-900 border border-slate-800 rounded-2xl p-12 text-center">
+            <p className="text-4xl mb-3">⚽</p>
+            <p className="text-slate-400 font-semibold">Nenhum jogo agendado no momento.</p>
+          </div>
         ) : (
-          <div className='flex flex-col gap-10'>
-            {Object.keys(jogosAgrupados).map((data) => (
-              <div key={data} className='flex flex-col gap-4'>
-                <h2 className='text-xl font-bold text-gray-800 border-b-2 border-gray-200 pb-2 text-center'>
-                  Jogos do dia {data}
+          <div className="flex flex-col gap-10">
+            {Object.entries(jogosAgrupados).map(([data, jogosDia]) => (
+              <div key={data}>
+                <h2 className="text-sm font-bold text-slate-500 uppercase tracking-widest mb-4 capitalize">
+                  {data}
                 </h2>
-
-                <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6'>
-                  {jogosAgrupados[data].map((jogo) => {
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                  {jogosDia.map((jogo) => {
                     const input = inputs[jogo.id] ?? { home: "", away: "" };
                     const salvando = saveStates[jogo.id] === "saving";
                     const bloqueado = palpiteBloqueado(jogo.kickoffAt);
+                    const { label, cls } = botaoEstado(jogo.id);
+                    const temPalpite = !!palpites[jogo.id];
 
                     return (
                       <div
                         key={jogo.id}
-                        className='border rounded-xl p-4 sm:p-5 shadow-lg bg-white flex flex-col items-center'
+                        className={`bg-slate-900 border rounded-2xl p-4 flex flex-col gap-4 transition-colors ${
+                          bloqueado ? "border-slate-800 opacity-70" : "border-slate-800 hover:border-slate-700"
+                        }`}
                       >
-                        <p className='text-xs text-gray-400 mb-4 font-bold uppercase tracking-wider'>
-                          {new Date(jogo.kickoffAt).toLocaleTimeString("pt-BR", {
-                            hour: "2-digit",
-                            minute: "2-digit",
-                          })}
-                        </p>
+                        <div className="flex items-center justify-between">
+                          <span className="text-xs text-slate-500 font-bold uppercase tracking-widest">
+                            {new Date(jogo.kickoffAt).toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" })}
+                          </span>
+                          {temPalpite && !bloqueado && (
+                            <span className="text-xs text-blue-400 font-semibold">Palpite salvo ✓</span>
+                          )}
+                        </div>
 
-                        <div className='flex w-full items-center justify-between mb-5'>
-                          <div className='flex flex-col items-center w-[38%] text-center gap-1'>
-                            <img
-                              src={jogo.homeTeam.crestUrl}
-                              alt={jogo.homeTeam.name}
-                              className='w-10 h-10 sm:w-12 sm:h-12 object-contain'
-                            />
-                            <span className='font-semibold text-xs sm:text-sm leading-tight line-clamp-2'>
-                              {jogo.homeTeam.name}
-                            </span>
+                        <div className="flex items-center gap-2">
+                          <div className="flex flex-col items-center flex-1 gap-1.5 min-w-0">
+                            <img src={jogo.homeTeam.crestUrl} alt={jogo.homeTeam.name} className="w-11 h-11 object-contain" />
+                            <span className="text-white text-xs font-semibold text-center line-clamp-2 leading-tight w-full">{jogo.homeTeam.name}</span>
                           </div>
 
-                          <div className='flex items-center gap-1 sm:gap-2 w-[24%] justify-center'>
+                          <div className="flex items-center gap-1.5 shrink-0">
                             <input
-                              type='number'
-                              min={0}
+                              type="number" min={0}
                               disabled={bloqueado}
-                              className='w-9 h-10 sm:w-11 sm:h-11 border-2 rounded text-center text-base sm:text-lg font-bold bg-gray-50 focus:border-blue-500 outline-none disabled:opacity-50 disabled:cursor-not-allowed'
                               value={input.home}
-                              onChange={(e) =>
-                                handleInput(jogo.id, "home", e.target.value)
-                              }
+                              onChange={(e) => handleInput(jogo.id, "home", e.target.value)}
+                              className="w-12 h-13 bg-slate-800 border-2 border-slate-700 focus:border-blue-500 text-white text-xl font-black text-center rounded-xl outline-none disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
                             />
-                            <span className='text-gray-400 font-bold text-sm'>x</span>
+                            <span className="text-slate-600 font-black text-lg">×</span>
                             <input
-                              type='number'
-                              min={0}
+                              type="number" min={0}
                               disabled={bloqueado}
-                              className='w-9 h-10 sm:w-11 sm:h-11 border-2 rounded text-center text-base sm:text-lg font-bold bg-gray-50 focus:border-blue-500 outline-none disabled:opacity-50 disabled:cursor-not-allowed'
                               value={input.away}
-                              onChange={(e) =>
-                                handleInput(jogo.id, "away", e.target.value)
-                              }
+                              onChange={(e) => handleInput(jogo.id, "away", e.target.value)}
+                              className="w-12 h-13 bg-slate-800 border-2 border-slate-700 focus:border-blue-500 text-white text-xl font-black text-center rounded-xl outline-none disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
                             />
                           </div>
 
-                          <div className='flex flex-col items-center w-[38%] text-center gap-1'>
-                            <img
-                              src={jogo.awayTeam.crestUrl}
-                              alt={jogo.awayTeam.name}
-                              className='w-10 h-10 sm:w-12 sm:h-12 object-contain'
-                            />
-                            <span className='font-semibold text-xs sm:text-sm leading-tight line-clamp-2'>
-                              {jogo.awayTeam.name}
-                            </span>
+                          <div className="flex flex-col items-center flex-1 gap-1.5 min-w-0">
+                            <img src={jogo.awayTeam.crestUrl} alt={jogo.awayTeam.name} className="w-11 h-11 object-contain" />
+                            <span className="text-white text-xs font-semibold text-center line-clamp-2 leading-tight w-full">{jogo.awayTeam.name}</span>
                           </div>
                         </div>
 
                         {bloqueado ? (
-                          <div className='w-full py-3 rounded-lg font-bold text-center text-sm bg-red-50 text-red-400 border border-red-200'>
-                            Palpites encerrados
+                          <div className="bg-slate-800/80 text-slate-500 text-xs font-bold text-center py-2.5 rounded-xl border border-slate-700">
+                            🔒 Palpites encerrados
                           </div>
                         ) : (
                           <button
                             disabled={salvando}
                             onClick={() => salvarPalpite(jogo.id)}
-                            className={`w-full text-white py-3 rounded-lg font-bold transition-colors ${corBotao(jogo.id)}`}
+                            className={`w-full text-white text-sm font-bold py-2.5 rounded-xl transition-colors ${cls}`}
                           >
-                            {labelBotao(jogo.id)}
+                            {label}
                           </button>
                         )}
                       </div>
@@ -397,7 +298,9 @@ export function Dashboard() {
             ))}
           </div>
         )}
-      </div>
+      </main>
+
+      <NavBar />
     </div>
   );
 }

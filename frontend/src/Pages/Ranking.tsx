@@ -2,6 +2,8 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { api } from "../services/api";
 import type { RankingEntry } from "../types/api";
+import { NavBar } from "../components/NavBar";
+
 
 export function Ranking() {
   const navigate = useNavigate();
@@ -26,81 +28,73 @@ export function Ranking() {
   }, []);
 
   return (
-    <div className='min-h-screen bg-gray-50 p-6'>
-      <div className='max-w-2xl mx-auto'>
-        <div className='flex justify-between items-center mb-8'>
-          <h1 className='text-3xl font-black text-gray-800 tracking-tight'>
-            🏆 Ranking Geral
+    <div className="min-h-screen bg-slate-950 pb-24 md:pb-8">
+      <header className="px-5 pt-6 pb-4 max-w-2xl mx-auto flex items-center justify-between">
+        <div>
+          <h1 className="text-2xl font-black tracking-tighter text-white">
+            🏆 <span className="text-blue-400">Ranking</span> Geral
           </h1>
-          <button
-            onClick={() => navigate("/dashboard")}
-            className='text-blue-600 font-bold hover:underline'
-          >
-            Voltar aos Jogos
-          </button>
+          <p className="text-slate-500 text-sm mt-1">Classificação por pontos acumulados</p>
         </div>
+        <button onClick={() => navigate("/dashboard")} className="hidden md:block text-slate-500 hover:text-slate-300 text-sm font-semibold transition-colors">
+          ← Voltar
+        </button>
+      </header>
 
+      <main className="max-w-2xl mx-auto px-4">
         {carregando ? (
-          <div className='bg-white rounded-2xl shadow-xl border border-gray-100 overflow-hidden animate-pulse'>
+          <div className="bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden">
             {[1, 2, 3, 4, 5].map((i) => (
-              <div key={i} className='flex items-center justify-between p-5 border-b border-gray-100'>
-                <div className='flex items-center gap-4'>
-                  <div className='w-10 h-10 bg-gray-200 rounded-full' />
-                  <div className='h-4 bg-gray-200 rounded w-32' />
+              <div key={i} className="flex items-center justify-between p-4 border-b border-slate-800 last:border-0 animate-pulse">
+                <div className="flex items-center gap-4">
+                  <div className="w-10 h-10 bg-slate-800 rounded-full" />
+                  <div className="h-4 bg-slate-800 rounded w-32" />
                 </div>
-                <div className='h-8 bg-gray-200 rounded w-16' />
+                <div className="h-6 bg-slate-800 rounded w-16" />
               </div>
             ))}
           </div>
         ) : jogadores.length === 0 ? (
-          <div className='bg-white rounded-2xl shadow-xl border border-gray-100 p-12 text-center text-gray-400 font-semibold'>
-            Nenhum palpite pontuado ainda. Aguarde os resultados dos jogos!
+          <div className="bg-slate-900 border border-slate-800 rounded-2xl p-12 text-center">
+            <p className="text-3xl mb-3">📋</p>
+            <p className="text-slate-400 font-semibold">Nenhum palpite pontuado ainda.</p>
+            <p className="text-slate-600 text-sm mt-1">Aguarde os resultados dos jogos.</p>
           </div>
         ) : (
-          <div className='bg-white rounded-2xl shadow-xl border border-gray-100 overflow-hidden flex flex-col'>
+          <div className="bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden">
             {jogadores.map((jogador, index) => {
-              const posicao = index + 1;
-              let estiloPosicao = "bg-gray-100 text-gray-600 font-bold";
-              if (posicao === 1)
-                estiloPosicao =
-                  "bg-yellow-100 text-yellow-700 font-black border-2 border-yellow-400";
-              if (posicao === 2)
-                estiloPosicao =
-                  "bg-gray-200 text-gray-700 font-black border-2 border-gray-400";
-              if (posicao === 3)
-                estiloPosicao =
-                  "bg-orange-100 text-orange-800 font-black border-2 border-orange-400";
+              const pos = index + 1;
+              const icon = pos === 1 ? "🥇" : pos === 2 ? "🥈" : pos === 3 ? "🥉" : null;
+              const numStyle =
+                pos === 1 ? "text-yellow-400 bg-yellow-400/10" :
+                pos === 2 ? "text-slate-300 bg-slate-700" :
+                pos === 3 ? "text-orange-400 bg-orange-400/10" :
+                "text-slate-500 bg-slate-800";
 
               return (
                 <div
                   key={jogador.userId}
-                  className='flex items-center justify-between p-5 border-b border-gray-100 last:border-0 hover:bg-gray-50 transition-colors'
+                  className="flex items-center justify-between px-4 py-4 border-b border-slate-800 last:border-0 hover:bg-slate-800/40 transition-colors"
                 >
-                  <div className='flex items-center gap-4'>
-                    <div
-                      className={`w-10 h-10 flex items-center justify-center rounded-full ${estiloPosicao}`}
-                    >
-                      {posicao}º
+                  <div className="flex items-center gap-3">
+                    <div className={`w-9 h-9 flex items-center justify-center rounded-full text-sm font-black shrink-0 ${numStyle}`}>
+                      {icon ?? `${pos}º`}
                     </div>
-                    <span className='font-bold text-gray-800 text-lg'>
-                      {jogador.displayName}
-                    </span>
+                    <span className="text-white font-semibold">{jogador.displayName}</span>
                   </div>
 
-                  <div className='text-right'>
-                    <span className='text-2xl font-black text-blue-600'>
-                      {jogador.points}
-                    </span>
-                    <span className='text-xs text-gray-500 block uppercase tracking-wider font-bold'>
-                      pontos
-                    </span>
+                  <div className="flex items-baseline gap-1">
+                    <span className="text-2xl font-black text-blue-400">{jogador.points}</span>
+                    <span className="text-xs text-slate-500 font-bold uppercase tracking-wider">pts</span>
                   </div>
                 </div>
               );
             })}
           </div>
         )}
-      </div>
+      </main>
+
+      <NavBar />
     </div>
   );
 }

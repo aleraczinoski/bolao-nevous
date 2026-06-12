@@ -15,7 +15,6 @@ export function Login() {
     e.preventDefault();
     setError("");
     setIsLoading(true);
-
     try {
       const { data } = await api.post("/auth/login", { email, password });
       signIn(data.accessToken, data.user);
@@ -29,57 +28,54 @@ export function Login() {
   }
 
   return (
-    <div className='min-h-screen bg-gray-50 flex flex-col justify-center items-center p-6'>
-      <div className='mb-10 text-center'>
-        <h1 className='text-5xl md:text-6xl font-black text-blue-600 tracking-tighter mb-4'>
-          BOLÃO <span className='text-gray-800'>NEVOUS</span> ❄️
-        </h1>
-      </div>
+    <div className="min-h-screen bg-slate-950 flex flex-col justify-center items-center p-5">
+      <div className="w-full max-w-sm">
+        <div className="text-center mb-10">
+          <h1 className="text-5xl font-black tracking-tighter mb-1">
+            <span className="text-blue-400">BOLÃO</span>
+            <span className="text-white"> NEVOUS</span>
+          </h1>
+          <span className="text-3xl">❄️</span>
+          <p className="text-slate-500 text-sm mt-3 font-medium">Faça seu login para continuar</p>
+        </div>
 
-      <div className='w-full max-w-md bg-white rounded-3xl shadow-xl p-8 md:p-10 border border-gray-100 text-center'>
-        <h2 className='text-2xl font-bold text-gray-800 mb-6'>
-          Entrar no Jogo
-        </h2>
+        <div className="bg-slate-900 border border-slate-800 rounded-2xl p-6">
+          {error && (
+            <div className="mb-4 p-3 bg-red-500/10 border border-red-500/20 text-red-400 rounded-xl text-sm font-medium">
+              {error}
+            </div>
+          )}
+          <form onSubmit={handleLogin} className="flex flex-col gap-3">
+            <input
+              type="email"
+              placeholder="E-mail"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              required
+              className="w-full px-4 py-3 rounded-xl bg-slate-800 border border-slate-700 focus:border-blue-500 focus:outline-none text-white placeholder-slate-500 transition-colors"
+            />
+            <input
+              type="password"
+              placeholder="Senha"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
+              className="w-full px-4 py-3 rounded-xl bg-slate-800 border border-slate-700 focus:border-blue-500 focus:outline-none text-white placeholder-slate-500 transition-colors"
+            />
+            <button
+              type="submit"
+              disabled={isLoading}
+              className="w-full bg-blue-600 hover:bg-blue-500 disabled:opacity-50 text-white font-bold py-3.5 rounded-xl transition-colors mt-1"
+            >
+              {isLoading ? "Entrando..." : "Entrar"}
+            </button>
+          </form>
+        </div>
 
-        {error && (
-          <div className='mb-4 p-3 bg-red-100 text-red-700 rounded-lg text-sm font-semibold'>
-            {error}
-          </div>
-        )}
-
-        <form onSubmit={handleLogin} className='flex flex-col gap-4 mb-6'>
-          <input
-            type='email'
-            placeholder='Seu e-mail'
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            required
-            className='w-full px-4 py-3 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-gray-50 text-gray-800'
-          />
-          <input
-            type='password'
-            placeholder='Sua senha'
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            required
-            className='w-full px-4 py-3 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-gray-50 text-gray-800'
-          />
-          <button
-            type='submit'
-            disabled={isLoading}
-            className='w-full bg-blue-600 text-white h-14 rounded-xl font-bold text-lg hover:bg-blue-700 disabled:opacity-50 transition-all mt-2'
-          >
-            {isLoading ? "Entrando..." : "Entrar"}
-          </button>
-        </form>
-
-        <p className='text-sm text-gray-500'>
-          Não tem uma conta?{" "}
-          <Link
-            to='/register'
-            className='text-blue-600 font-bold hover:underline'
-          >
-            Cadastre-se aqui
+        <p className="text-center text-slate-500 text-sm mt-5">
+          Não tem conta?{" "}
+          <Link to="/register" className="text-blue-400 font-bold hover:text-blue-300 transition-colors">
+            Cadastre-se
           </Link>
         </p>
       </div>

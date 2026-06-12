@@ -2,6 +2,28 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { api } from "../services/api";
 import type { AdminPrediction } from "../types/api";
+import { NavBar } from "../components/NavBar";
+
+function badgePts(pts: number | null) {
+  if (pts === null) return null;
+  const map: Record<number, { label: string; cls: string }> = {
+    0: { label: "Errou", cls: "bg-slate-800 text-slate-500 border-slate-700" },
+    1: { label: "Resultado", cls: "bg-slate-700 text-slate-300 border-slate-600" },
+    2: { label: "+Perdedor", cls: "bg-amber-500/20 text-amber-400 border-amber-500/30" },
+    3: { label: "+Diferença", cls: "bg-orange-500/20 text-orange-400 border-orange-500/30" },
+    4: { label: "+Vencedor", cls: "bg-blue-500/20 text-blue-400 border-blue-500/30" },
+    5: { label: "+Vencedor+Gol", cls: "bg-purple-500/20 text-purple-400 border-purple-500/30" },
+    6: { label: "Placar Exato!", cls: "bg-green-500/20 text-green-400 border-green-500/30" },
+    7: { label: "Exato+Goleada!", cls: "bg-emerald-500/20 text-emerald-400 border-emerald-500/30" },
+  };
+  const entry = map[pts] ?? { label: `${pts} pts`, cls: "bg-blue-500/20 text-blue-400 border-blue-500/30" };
+  return (
+    <div className="flex flex-col items-end gap-1">
+      <span className={`px-2.5 py-1 rounded-lg text-xs font-bold border ${entry.cls}`}>{entry.label}</span>
+      <span className="text-xs text-slate-600 font-bold">{pts} pts</span>
+    </div>
+  );
+}
 
 export function AdminPalpites() {
   const navigate = useNavigate();
@@ -30,56 +52,36 @@ export function AdminPalpites() {
     );
   });
 
-  function badgePts(pts: number | null) {
-    if (pts === null) return <span className="text-xs text-gray-400">—</span>;
-    const cores: Record<number, string> = {
-      0: "bg-gray-100 text-gray-500",
-      1: "bg-gray-200 text-gray-600",
-      2: "bg-yellow-100 text-yellow-700",
-      3: "bg-orange-100 text-orange-700",
-      4: "bg-blue-100 text-blue-700",
-      5: "bg-purple-100 text-purple-700",
-      6: "bg-green-100 text-green-700",
-      7: "bg-emerald-100 text-emerald-700",
-    };
-    return (
-      <span className={`px-2 py-1 rounded-md text-xs font-bold ${cores[pts] ?? "bg-green-100 text-green-700"}`}>
-        {pts} pts
-      </span>
-    );
-  }
+  const selectCls = "flex-1 bg-slate-800 border border-slate-700 text-slate-300 text-sm rounded-xl px-3 py-2.5 focus:outline-none focus:border-blue-500 transition-colors";
 
   return (
-    <div className="min-h-screen bg-gray-50 p-4 sm:p-6">
-      <div className="max-w-4xl mx-auto">
-        <div className="flex justify-between items-center mb-6">
-          <h1 className="text-2xl sm:text-3xl font-black text-gray-800 tracking-tight">Palpites</h1>
-          <button onClick={() => navigate("/dashboard")} className="text-blue-600 font-bold hover:underline text-sm">
-            Voltar
-          </button>
+    <div className="min-h-screen bg-slate-950 pb-24 md:pb-8">
+      <header className="px-5 pt-6 pb-4 max-w-4xl mx-auto flex items-center justify-between">
+        <div>
+          <h1 className="text-2xl font-black tracking-tighter text-white">
+            📋 <span className="text-blue-400">Palpites</span> das Partidas
+          </h1>
+          <p className="text-slate-500 text-sm mt-1">Resultados das partidas finalizadas</p>
         </div>
+        <button onClick={() => navigate("/dashboard")} className="hidden md:block text-slate-500 hover:text-slate-300 text-sm font-semibold transition-colors">
+          ← Voltar
+        </button>
+      </header>
 
+      <main className="max-w-4xl mx-auto px-4">
         {erro && (
-          <div className="bg-red-50 border border-red-200 rounded-xl p-4 mb-4 text-red-600 font-semibold text-sm">
+          <div className="mb-4 p-4 bg-red-500/10 border border-red-500/20 text-red-400 rounded-xl text-sm font-semibold">
             {erro}
           </div>
         )}
 
-        <div className="flex flex-col sm:flex-row gap-3 mb-5">
-          <select
-            value={filtroUsuario}
-            onChange={(e) => setFiltroUsuario(e.target.value)}
-            className="border border-gray-200 rounded-lg px-3 py-2 text-sm bg-white shadow-sm flex-1"
-          >
+        <div className="flex flex-col sm:flex-row gap-2.5 mb-5">
+          <select value={filtroUsuario} onChange={(e) => setFiltroUsuario(e.target.value)} className={selectCls}>
             <option value="">Todos os participantes</option>
             {usuarios.map((u) => <option key={u} value={u}>{u}</option>)}
           </select>
 
-          <select
-            value={filtroPartida}
-            onChange={(e) => setFiltroPartida(e.target.value)}
-            className="border border-gray-200 rounded-lg px-3 py-2 text-sm bg-white shadow-sm flex-1"
-          >
+          <select value={filtroPartida} onChange={(e) => setFiltroPartida(e.target.value)} className={selectCls}>
             <option value="">Todas as partidas</option>
             {partidas.map((p) => <option key={p} value={p}>{p}</option>)}
           </select>
@@ -87,7 +89,7 @@ export function AdminPalpites() {
           {(filtroUsuario || filtroPartida) && (
             <button
               onClick={() => { setFiltroUsuario(""); setFiltroPartida(""); }}
-              className="text-sm text-gray-500 hover:text-gray-700 font-semibold px-3 py-2"
+              className="text-slate-500 hover:text-slate-300 font-bold text-sm px-3 py-2.5 bg-slate-800 rounded-xl border border-slate-700 transition-colors"
             >
               Limpar
             </button>
@@ -97,51 +99,59 @@ export function AdminPalpites() {
         {carregando ? (
           <div className="flex flex-col gap-3">
             {[1, 2, 3].map((i) => (
-              <div key={i} className="bg-white rounded-xl border border-gray-100 shadow-sm h-24 animate-pulse" />
+              <div key={i} className="bg-slate-900 border border-slate-800 rounded-xl h-24 animate-pulse" />
             ))}
           </div>
         ) : palpites.length === 0 ? (
-          <div className="bg-white rounded-2xl shadow border border-gray-100 p-12 text-center text-gray-400 font-semibold">
-            Nenhuma partida finalizada ainda.
+          <div className="bg-slate-900 border border-slate-800 rounded-2xl p-12 text-center">
+            <p className="text-3xl mb-3">⚽</p>
+            <p className="text-slate-400 font-semibold">Nenhuma partida finalizada ainda.</p>
           </div>
         ) : filtrados.length === 0 ? (
-          <div className="bg-white rounded-2xl shadow border border-gray-100 p-12 text-center text-gray-400 font-semibold">
-            Nenhum palpite para o filtro selecionado. ({palpites.length} no total)
+          <div className="bg-slate-900 border border-slate-800 rounded-2xl p-12 text-center">
+            <p className="text-slate-400 font-semibold">Nenhum palpite para o filtro selecionado.</p>
+            <p className="text-slate-600 text-sm mt-1">{palpites.length} palpites no total</p>
           </div>
         ) : (
-          <div className="flex flex-col gap-3">
-            {filtrados.map((p) => (
-              <div key={p.id} className="bg-white rounded-xl border border-gray-100 shadow-sm p-4">
-                <div className="flex items-start justify-between gap-2 mb-3">
-                  <div>
-                    <p className="font-bold text-gray-800 text-sm">{p.user.displayName}</p>
-                    <p className="text-xs text-gray-400 mt-0.5">
-                      {p.match.homeTeam.name} x {p.match.awayTeam.name}
-                    </p>
+          <>
+            <div className="flex flex-col gap-2.5">
+              {filtrados.map((p) => (
+                <div key={p.id} className="bg-slate-900 border border-slate-800 rounded-xl p-4">
+                  <div className="flex items-start justify-between gap-3 mb-3">
+                    <div>
+                      <p className="text-white font-bold text-sm">{p.user.displayName}</p>
+                      <div className="flex items-center gap-1.5 mt-1">
+                        <img src={p.match.homeTeam.crestUrl} alt="" className="w-4 h-4 object-contain" />
+                        <span className="text-xs text-slate-400">{p.match.homeTeam.name}</span>
+                        <span className="text-slate-600 text-xs">x</span>
+                        <span className="text-xs text-slate-400">{p.match.awayTeam.name}</span>
+                        <img src={p.match.awayTeam.crestUrl} alt="" className="w-4 h-4 object-contain" />
+                      </div>
+                    </div>
+                    {badgePts(p.points)}
                   </div>
-                  {badgePts(p.points)}
-                </div>
 
-                <div className="flex items-center gap-3 text-sm">
-                  <div className="flex-1 bg-gray-50 rounded-lg p-2 text-center">
-                    <p className="text-xs text-gray-400 mb-1">Palpite</p>
-                    <p className="font-bold text-gray-800">{p.homeScore} x {p.awayScore}</p>
-                  </div>
-                  <span className="text-gray-300 font-bold">→</span>
-                  <div className="flex-1 bg-gray-50 rounded-lg p-2 text-center">
-                    <p className="text-xs text-gray-400 mb-1">Resultado</p>
-                    <p className="font-bold text-gray-800">{p.match.homeScore} x {p.match.awayScore}</p>
+                  <div className="grid grid-cols-2 gap-2">
+                    <div className="bg-slate-800 border border-slate-700 rounded-xl p-2.5 text-center">
+                      <p className="text-xs text-slate-500 font-bold uppercase tracking-wider mb-1">Palpite</p>
+                      <p className="text-white font-black">{p.homeScore} × {p.awayScore}</p>
+                    </div>
+                    <div className="bg-slate-800 border border-slate-700 rounded-xl p-2.5 text-center">
+                      <p className="text-xs text-slate-500 font-bold uppercase tracking-wider mb-1">Resultado</p>
+                      <p className="text-white font-black">{p.match.homeScore} × {p.match.awayScore}</p>
+                    </div>
                   </div>
                 </div>
-              </div>
-            ))}
-
-            <p className="text-xs text-gray-400 text-right pt-1">
+              ))}
+            </div>
+            <p className="text-xs text-slate-600 text-right mt-3 pb-2">
               {filtrados.length} palpite{filtrados.length !== 1 ? "s" : ""}
             </p>
-          </div>
+          </>
         )}
-      </div>
+      </main>
+
+      <NavBar />
     </div>
   );
 }
