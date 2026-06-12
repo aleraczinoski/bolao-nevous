@@ -68,6 +68,23 @@ export class PredictionsService {
     });
   }
 
+  async listFinished() {
+    return this.prisma.prediction.findMany({
+      where: { match: { status: 'FINISHED' } },
+      include: {
+        user: { select: { id: true, displayName: true } },
+        match: {
+          include: {
+            homeTeam: true,
+            awayTeam: true,
+            round: true,
+          },
+        },
+      },
+      orderBy: { match: { kickoffAt: 'desc' } },
+    });
+  }
+
   async listByUser(userId: string) {
     return this.prisma.prediction.findMany({
       where: { userId },

@@ -54,4 +54,9 @@ export class PredictionsController {
     }
     return this.predictionsService.listByUser(userId);
   }
+
+  @Get('finished')
+  async listFinished() {
+    return this.predictionsService.listFinished();
+  }
 }

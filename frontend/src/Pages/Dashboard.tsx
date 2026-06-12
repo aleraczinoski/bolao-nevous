@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { api } from "../services/api";
-import { useAuth } from "../contexts/AuthContext";
 import type { Match, Prediction } from "../types/api";
 
 function CardPontuacao() {
@@ -107,7 +106,6 @@ function buildPredMaps(preds: Prediction[]) {
 }
 
 export function Dashboard() {
-  const { user } = useAuth();
   const [jogos, setJogos] = useState<Match[]>([]);
   const [palpites, setPalpites] = useState<Record<string, Prediction>>({});
   const [inputs, setInputs] = useState<Record<string, PredictionInput>>({});
@@ -248,14 +246,12 @@ export function Dashboard() {
             >
               🏆 <span className='hidden sm:inline'>Ranking</span>
             </button>
-            {user?.role === "ADMIN" && (
-              <button
-                onClick={() => navigate("/admin/palpites")}
-                className='bg-white border border-gray-200 text-gray-700 px-4 py-2 rounded-xl font-bold shadow-sm hover:bg-gray-100 transition-colors flex items-center gap-2'
-              >
-                🛠️
-              </button>
-            )}
+            <button
+              onClick={() => navigate("/palpites")}
+              className='bg-white border border-gray-200 text-gray-700 px-4 py-2 rounded-xl font-bold shadow-sm hover:bg-gray-100 transition-colors flex items-center gap-2'
+            >
+              📋 <span className='hidden sm:inline'>Palpites</span>
+            </button>
           </div>
 
           <h1 className='text-2xl md:text-3xl font-black text-blue-600 tracking-tighter text-center'>
