@@ -2,6 +2,7 @@ import {
   Body,
   Controller,
   Get,
+  Patch,
   Post,
   Req,
   UnauthorizedException,
@@ -11,6 +12,7 @@ import type { Request } from 'express';
 import { AuthService } from './auth.service';
 import { LoginDto } from './dto/login.dto';
 import { RegisterDto } from './dto/register.dto';
+import { UpdateProfileDto } from './dto/update-profile.dto';
 import { JwtAuthGuard } from './jwt-auth.guard';
 
 @Controller('auth')
@@ -39,5 +41,15 @@ export class AuthController {
       throw new UnauthorizedException('Token invalido.');
     }
     return this.authService.getProfile(userId);
+  }
+
+  @Patch('me')
+  @UseGuards(JwtAuthGuard)
+  async updateMe(@Req() req: Request, @Body() dto: UpdateProfileDto) {
+    const userId = AuthController.getUserId(req);
+    if (!userId) {
+      throw new UnauthorizedException('Token invalido.');
+    }
+    return this.authService.updateProfile(userId, dto);
   }
 }

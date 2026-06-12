@@ -9,6 +9,7 @@ interface AuthContextData {
   isLoading: boolean;
   signIn: (token: string, user: User) => void;
   signOut: () => void;
+  updateUser: (token: string, user: User) => void;
 }
 
 const AuthContext = createContext<AuthContextData>({} as AuthContextData);
@@ -49,8 +50,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setUser(null);
   }
 
+  function updateUser(newToken: string, newUser: User) {
+    localStorage.setItem("@Bolao:token", newToken);
+    setToken(newToken);
+    setUser(newUser);
+  }
+
   return (
-    <AuthContext.Provider value={{ user, token, isLoading, signIn, signOut }}>
+    <AuthContext.Provider value={{ user, token, isLoading, signIn, signOut, updateUser }}>
       {children}
     </AuthContext.Provider>
   );

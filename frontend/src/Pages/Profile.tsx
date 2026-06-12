@@ -19,9 +19,13 @@ function badgePontos(pts: number): { label: string; cls: string } {
 
 export function Profile() {
   const navigate = useNavigate();
-  const { user, signOut } = useAuth();
+  const { user, signOut, updateUser } = useAuth();
   const [historico, setHistorico] = useState<Prediction[]>([]);
   const [carregando, setCarregando] = useState(true);
+  const [editandoNome, setEditandoNome] = useState(false);
+  const [novoNome, setNovoNome] = useState("");
+  const [salvandoNome, setSalvandoNome] = useState(false);
+  const [erroNome, setErroNome] = useState<string | null>(null);
 
   useEffect(() => {
     const cached = sessionStorage.getItem("bolao:predictions");
@@ -45,6 +49,30 @@ export function Profile() {
     navigate("/");
   }
 
+  function iniciarEdicaoNome() {
+    setNovoNome(user?.displayName ?? "");
+    setErroNome(null);
+    setEditandoNome(true);
+  }
+
+  async function salvarNome() {
+    if (!novoNome.trim()) return;
+    setSalvandoNome(true);
+    setErroNome(null);
+    try {
+      const res = await api.patch<{ accessToken: string; user: import("../types/api").User }>("/auth/me", {
+        displayName: novoNome.trim(),
+      });
+      updateUser(res.data.accessToken, res.data.user);
+      setEditandoNome(false);
+    } catch (err: unknown) {
+      const e = err as { response?: { data?: { message?: string } } };
+      setErroNome(e?.response?.data?.message ?? "Erro ao salvar nome.");
+    } finally {
+      setSalvandoNome(false);
+    }
+  }
+
   const totalPontos = historico.reduce((acc, p) => acc + (p.points ?? 0), 0);
   const finalizados = historico.filter((p) => p.match.status === "FINISHED");
   const acertos = finalizados.filter((p) => (p.points ?? 0) > 0).length;
@@ -63,7 +91,49 @@ export function Profile() {
               <div className="w-12 h-12 rounded-2xl bg-white/20 flex items-center justify-center text-2xl mb-3">
                 {user.displayName[0]?.toUpperCase()}
               </div>
-              <h2 className="text-xl font-black text-white">{user.displayName}</h2>
+              {editandoNome ? (
+                <div className="mt-1">
+                  <input
+                    autoFocus
+                    value={novoNome}
+                    onChange={(e) => setNovoNome(e.target.value)}
+                    onKeyDown={(e) => { if (e.key === "Enter") salvarNome(); if (e.key === "Escape") setEditandoNome(false); }}
+                    disabled={salvandoNome}
+                    maxLength={50}
+                    className="bg-white/20 text-white font-black text-lg rounded-lg px-3 py-1 outline-none border border-white/40 w-full placeholder-white/50 disabled:opacity-60"
+                  />
+                  {erroNome && <p className="text-red-300 text-xs mt-1 font-semibold">{erroNome}</p>}
+                  <div className="flex gap-2 mt-2">
+                    <button
+                      onClick={salvarNome}
+                      disabled={salvandoNome || !novoNome.trim()}
+                      className="text-xs font-bold bg-white/20 hover:bg-white/30 text-white px-3 py-1 rounded-lg transition-colors disabled:opacity-50"
+                    >
+                      {salvandoNome ? "Salvando..." : "Salvar"}
+                    </button>
+                    <button
+                      onClick={() => setEditandoNome(false)}
+                      disabled={salvandoNome}
+                      className="text-xs font-bold text-white/60 hover:text-white px-2 py-1 rounded-lg transition-colors"
+                    >
+                      Cancelar
+                    </button>
+                  </div>
+                </div>
+              ) : (
+                <div className="flex items-center gap-2 mt-1">
+                  <h2 className="text-xl font-black text-white">{user.displayName}</h2>
+                  <button
+                    onClick={iniciarEdicaoNome}
+                    title="Editar nome"
+                    className="text-white/50 hover:text-white transition-colors"
+                  >
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="w-4 h-4">
+                      <path d="M2.695 14.763l-1.262 3.154a.5.5 0 00.65.65l3.155-1.262a4 4 0 001.343-.885L17.5 5.5a2.121 2.121 0 00-3-3L3.58 13.42a4 4 0 00-.885 1.343z" />
+                    </svg>
+                  </button>
+                </div>
+              )}
               <p className="text-blue-200 text-sm">{user.email}</p>
             </div>
             <div className="text-right">

@@ -9,6 +9,7 @@ import { Role, User } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
 import { LoginDto } from './dto/login.dto';
 import { RegisterDto } from './dto/register.dto';
+import { UpdateProfileDto } from './dto/update-profile.dto';
 import { hashPassword, verifyPassword } from './crypto';
 
 @Injectable()
@@ -52,6 +53,18 @@ export class AuthService {
     if (!user.active) {
       throw new ForbiddenException('Usuario inativo.');
     }
+
+    return {
+      accessToken: this.signToken(user),
+      user: this.toUserResponse(user),
+    };
+  }
+
+  async updateProfile(userId: string, dto: UpdateProfileDto) {
+    const user = await this.prisma.user.update({
+      where: { id: userId },
+      data: { displayName: dto.displayName.trim() },
+    });
 
     return {
       accessToken: this.signToken(user),
