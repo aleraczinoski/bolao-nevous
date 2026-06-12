@@ -50,11 +50,11 @@ export function AdminPalpites() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 p-6">
-      <div className="max-w-6xl mx-auto">
-        <div className="flex justify-between items-center mb-8">
-          <h1 className="text-3xl font-black text-gray-800 tracking-tight">Palpites</h1>
-          <button onClick={() => navigate("/dashboard")} className="text-blue-600 font-bold hover:underline">
+    <div className="min-h-screen bg-gray-50 p-4 sm:p-6">
+      <div className="max-w-4xl mx-auto">
+        <div className="flex justify-between items-center mb-6">
+          <h1 className="text-2xl sm:text-3xl font-black text-gray-800 tracking-tight">Palpites</h1>
+          <button onClick={() => navigate("/dashboard")} className="text-blue-600 font-bold hover:underline text-sm">
             Voltar
           </button>
         </div>
@@ -65,7 +65,7 @@ export function AdminPalpites() {
           </div>
         )}
 
-        <div className="flex flex-col sm:flex-row gap-3 mb-6">
+        <div className="flex flex-col sm:flex-row gap-3 mb-5">
           <select
             value={filtroUsuario}
             onChange={(e) => setFiltroUsuario(e.target.value)}
@@ -87,7 +87,7 @@ export function AdminPalpites() {
           {(filtroUsuario || filtroPartida) && (
             <button
               onClick={() => { setFiltroUsuario(""); setFiltroPartida(""); }}
-              className="text-sm text-gray-500 hover:text-gray-700 font-semibold px-3"
+              className="text-sm text-gray-500 hover:text-gray-700 font-semibold px-3 py-2"
             >
               Limpar
             </button>
@@ -95,7 +95,11 @@ export function AdminPalpites() {
         </div>
 
         {carregando ? (
-          <div className="bg-white rounded-2xl shadow border border-gray-100 animate-pulse h-64" />
+          <div className="flex flex-col gap-3">
+            {[1, 2, 3].map((i) => (
+              <div key={i} className="bg-white rounded-xl border border-gray-100 shadow-sm h-24 animate-pulse" />
+            ))}
+          </div>
         ) : palpites.length === 0 ? (
           <div className="bg-white rounded-2xl shadow border border-gray-100 p-12 text-center text-gray-400 font-semibold">
             Nenhuma partida finalizada ainda.
@@ -105,46 +109,34 @@ export function AdminPalpites() {
             Nenhum palpite para o filtro selecionado. ({palpites.length} no total)
           </div>
         ) : (
-          <div className="bg-white rounded-2xl shadow border border-gray-100 overflow-x-auto">
-            <table className="w-full text-sm">
-              <thead>
-                <tr className="border-b border-gray-100 text-left text-xs uppercase tracking-wider text-gray-400">
-                  <th className="px-5 py-3">Participante</th>
-                  <th className="px-5 py-3">Partida</th>
-                  <th className="px-5 py-3 text-center">Palpite</th>
-                  <th className="px-5 py-3 text-center">Resultado</th>
-                  <th className="px-5 py-3 text-center">Pts</th>
-                </tr>
-              </thead>
-              <tbody>
-                {filtrados.map((p) => (
-                  <tr key={p.id} className="border-b border-gray-50 hover:bg-gray-50 transition-colors">
-                    <td className="px-5 py-3 font-semibold text-gray-800">{p.user.displayName}</td>
-                    <td className="px-5 py-3">
-                      <p className="font-semibold text-gray-700">
-                        {p.match.homeTeam.name} x {p.match.awayTeam.name}
-                      </p>
-                      <p className="text-xs text-gray-400">
-                        {new Date(p.match.kickoffAt).toLocaleDateString("pt-BR", {
-                          day: "2-digit", month: "2-digit", year: "numeric",
-                          hour: "2-digit", minute: "2-digit",
-                        })}
-                      </p>
-                    </td>
-                    <td className="px-5 py-3 text-center font-bold text-gray-800">
-                      {p.homeScore} x {p.awayScore}
-                    </td>
-                    <td className="px-5 py-3 text-center font-bold text-gray-800">
-                      {p.match.homeScore} x {p.match.awayScore}
-                    </td>
-                    <td className="px-5 py-3 text-center">
-                      {badgePts(p.points)}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-            <p className="text-xs text-gray-400 text-right px-5 py-3">
+          <div className="flex flex-col gap-3">
+            {filtrados.map((p) => (
+              <div key={p.id} className="bg-white rounded-xl border border-gray-100 shadow-sm p-4">
+                <div className="flex items-start justify-between gap-2 mb-3">
+                  <div>
+                    <p className="font-bold text-gray-800 text-sm">{p.user.displayName}</p>
+                    <p className="text-xs text-gray-400 mt-0.5">
+                      {p.match.homeTeam.name} x {p.match.awayTeam.name}
+                    </p>
+                  </div>
+                  {badgePts(p.points)}
+                </div>
+
+                <div className="flex items-center gap-3 text-sm">
+                  <div className="flex-1 bg-gray-50 rounded-lg p-2 text-center">
+                    <p className="text-xs text-gray-400 mb-1">Palpite</p>
+                    <p className="font-bold text-gray-800">{p.homeScore} x {p.awayScore}</p>
+                  </div>
+                  <span className="text-gray-300 font-bold">→</span>
+                  <div className="flex-1 bg-gray-50 rounded-lg p-2 text-center">
+                    <p className="text-xs text-gray-400 mb-1">Resultado</p>
+                    <p className="font-bold text-gray-800">{p.match.homeScore} x {p.match.awayScore}</p>
+                  </div>
+                </div>
+              </div>
+            ))}
+
+            <p className="text-xs text-gray-400 text-right pt-1">
               {filtrados.length} palpite{filtrados.length !== 1 ? "s" : ""}
             </p>
           </div>
