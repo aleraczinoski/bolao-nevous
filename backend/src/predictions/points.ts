@@ -28,11 +28,6 @@ export function calculatePoints(
     return base + 5 + goleada;
   }
 
-  // A partir daqui só se aplica a jogos com vencedor (não empate)
-  if (actualWinner === 'DRAW') {
-    return base;
-  }
-
   const isHome = actualWinner === 'HOME';
   const actualWinnerScore = isHome ? actualHome : actualAway;
   const actualLoserScore = isHome ? actualAway : actualHome;
