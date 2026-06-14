@@ -57,5 +57,5 @@ export function calculatePoints(
     return base + 1 + goleada;
   }
 
-  return base;
+  return base + goleada;
 }
