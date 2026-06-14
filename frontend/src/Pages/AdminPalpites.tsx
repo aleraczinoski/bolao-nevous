@@ -4,22 +4,77 @@ import { api } from "../services/api";
 import type { AdminPrediction } from "../types/api";
 import { NavBar } from "../components/NavBar";
 
-function badgePts(pts: number | null) {
+function getWinner(h: number, a: number) {
+  if (h === a) return "DRAW";
+  return h > a ? "HOME" : "AWAY";
+}
+
+function getPointsBreakdown(
+  pts: number,
+  predHome: number,
+  predAway: number,
+  actualHome: number | null,
+  actualAway: number | null,
+): { label: string; cls: string; goleada: boolean } {
+  if (pts === 0) return { label: "Errou", cls: "bg-slate-800 text-slate-500 border-slate-700", goleada: false };
+  if (actualHome === null || actualAway === null) {
+    return { label: `${pts} pts`, cls: "bg-blue-500/20 text-blue-400 border-blue-500/30", goleada: false };
+  }
+
+  const actualDiff = actualHome - actualAway;
+  const predDiff = predHome - predAway;
+  const isExact = actualHome === predHome && actualAway === predAway;
+  const isGoleada = Math.abs(actualDiff) >= 3 && Math.abs(predDiff) >= 3;
+  const actualWinner = getWinner(actualHome, actualAway);
+  const predWinner = getWinner(predHome, predAway);
+
+  if (isExact) {
+    return { label: "Placar Exato!", cls: "bg-green-500/20 text-green-400 border-green-500/30", goleada: isGoleada };
+  }
+
+  if (actualWinner !== predWinner) return { label: "Errou", cls: "bg-slate-800 text-slate-500 border-slate-700", goleada: false };
+  if (actualWinner === "DRAW") return { label: "Resultado", cls: "bg-slate-700 text-slate-300 border-slate-600", goleada: false };
+
+  const isHome = actualWinner === "HOME";
+  const actualWinnerScore = isHome ? actualHome : actualAway;
+  const actualLoserScore = isHome ? actualAway : actualHome;
+  const predWinnerScore = isHome ? predHome : predAway;
+  const predLoserScore = isHome ? predAway : predHome;
+
+  if (actualWinnerScore === predWinnerScore) {
+    return { label: "+Vencedor", cls: "bg-blue-500/20 text-blue-400 border-blue-500/30", goleada: isGoleada };
+  }
+
+  if (actualDiff === predDiff) {
+    return { label: "+Diferença", cls: "bg-orange-500/20 text-orange-400 border-orange-500/30", goleada: isGoleada };
+  }
+
+  if (actualLoserScore === predLoserScore) {
+    return { label: "+Perdedor", cls: "bg-amber-500/20 text-amber-400 border-amber-500/30", goleada: isGoleada };
+  }
+
+  return { label: "Resultado", cls: "bg-slate-700 text-slate-300 border-slate-600", goleada: isGoleada };
+}
+
+function badgePts(
+  pts: number | null,
+  predHome: number,
+  predAway: number,
+  actualHome: number | null,
+  actualAway: number | null,
+) {
   if (pts === null) return null;
-  const map: Record<number, { label: string; cls: string }> = {
-    0: { label: "Errou", cls: "bg-slate-800 text-slate-500 border-slate-700" },
-    1: { label: "Resultado", cls: "bg-slate-700 text-slate-300 border-slate-600" },
-    2: { label: "+Perdedor", cls: "bg-amber-500/20 text-amber-400 border-amber-500/30" },
-    3: { label: "+Diferença", cls: "bg-orange-500/20 text-orange-400 border-orange-500/30" },
-    4: { label: "+Vencedor", cls: "bg-blue-500/20 text-blue-400 border-blue-500/30" },
-    5: { label: "+Vencedor+Gol", cls: "bg-purple-500/20 text-purple-400 border-purple-500/30" },
-    6: { label: "Placar Exato!", cls: "bg-green-500/20 text-green-400 border-green-500/30" },
-    7: { label: "Exato+Goleada!", cls: "bg-emerald-500/20 text-emerald-400 border-emerald-500/30" },
-  };
-  const entry = map[pts] ?? { label: `${pts} pts`, cls: "bg-blue-500/20 text-blue-400 border-blue-500/30" };
+  const { label, cls, goleada } = getPointsBreakdown(pts, predHome, predAway, actualHome, actualAway);
   return (
     <div className="flex flex-col items-end gap-1">
-      <span className={`px-2.5 py-1 rounded-lg text-xs font-bold border ${entry.cls}`}>{entry.label}</span>
+      <div className="flex items-center gap-1">
+        {goleada && (
+          <span className="px-1.5 py-1 rounded-lg text-xs font-bold border bg-emerald-500/20 text-emerald-400 border-emerald-500/30">
+            +gol
+          </span>
+        )}
+        <span className={`px-2.5 py-1 rounded-lg text-xs font-bold border ${cls}`}>{label}</span>
+      </div>
       <span className="text-xs text-slate-600 font-bold">{pts} pts</span>
     </div>
   );
@@ -128,7 +183,7 @@ export function AdminPalpites() {
                         <img src={p.match.awayTeam.crestUrl} alt="" className="w-4 h-4 object-contain" />
                       </div>
                     </div>
-                    {badgePts(p.points)}
+                    {badgePts(p.points, p.homeScore, p.awayScore, p.match.homeScore, p.match.awayScore)}
                   </div>
 
                   <div className="grid grid-cols-2 gap-2">

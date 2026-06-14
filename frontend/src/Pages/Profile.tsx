@@ -5,16 +5,56 @@ import { useAuth } from "../contexts/AuthContext";
 import type { Prediction } from "../types/api";
 import { NavBar } from "../components/NavBar";
 
-function badgePontos(pts: number): { label: string; cls: string } {
-  if (pts === 0) return { label: "Errou", cls: "bg-slate-800 text-slate-500 border border-slate-700" };
-  if (pts === 1) return { label: "Resultado", cls: "bg-slate-700 text-slate-300 border border-slate-600" };
-  if (pts === 2) return { label: "+Perdedor", cls: "bg-amber-500/20 text-amber-400 border border-amber-500/30" };
-  if (pts === 3) return { label: "+Diferença", cls: "bg-orange-500/20 text-orange-400 border border-orange-500/30" };
-  if (pts === 4) return { label: "+Vencedor", cls: "bg-blue-500/20 text-blue-400 border border-blue-500/30" };
-  if (pts === 5) return { label: "+Vencedor+Gol", cls: "bg-purple-500/20 text-purple-400 border border-purple-500/30" };
-  if (pts === 6) return { label: "Placar Exato!", cls: "bg-green-500/20 text-green-400 border border-green-500/30" };
-  if (pts === 7) return { label: "Exato+Goleada!", cls: "bg-emerald-500/20 text-emerald-400 border border-emerald-500/30" };
-  return { label: `${pts} pts`, cls: "bg-blue-500/20 text-blue-400 border border-blue-500/30" };
+function getWinner(h: number, a: number) {
+  if (h === a) return "DRAW";
+  return h > a ? "HOME" : "AWAY";
+}
+
+function badgePontos(
+  pts: number,
+  predHome: number,
+  predAway: number,
+  actualHome: number | null,
+  actualAway: number | null,
+): { label: string; cls: string; goleada: boolean } {
+  if (pts === 0) return { label: "Errou", cls: "bg-slate-800 text-slate-500 border border-slate-700", goleada: false };
+  if (actualHome === null || actualAway === null) {
+    return { label: `${pts} pts`, cls: "bg-blue-500/20 text-blue-400 border border-blue-500/30", goleada: false };
+  }
+
+  const actualDiff = actualHome - actualAway;
+  const predDiff = predHome - predAway;
+  const isExact = actualHome === predHome && actualAway === predAway;
+  const isGoleada = Math.abs(actualDiff) >= 3 && Math.abs(predDiff) >= 3;
+  const actualWinner = getWinner(actualHome, actualAway);
+  const predWinner = getWinner(predHome, predAway);
+
+  if (isExact) {
+    return { label: "Placar Exato!", cls: "bg-green-500/20 text-green-400 border border-green-500/30", goleada: isGoleada };
+  }
+
+  if (actualWinner !== predWinner) return { label: "Errou", cls: "bg-slate-800 text-slate-500 border border-slate-700", goleada: false };
+  if (actualWinner === "DRAW") return { label: "Resultado", cls: "bg-slate-700 text-slate-300 border border-slate-600", goleada: false };
+
+  const isHome = actualWinner === "HOME";
+  const actualWinnerScore = isHome ? actualHome : actualAway;
+  const actualLoserScore = isHome ? actualAway : actualHome;
+  const predWinnerScore = isHome ? predHome : predAway;
+  const predLoserScore = isHome ? predAway : predHome;
+
+  if (actualWinnerScore === predWinnerScore) {
+    return { label: "+Vencedor", cls: "bg-blue-500/20 text-blue-400 border border-blue-500/30", goleada: isGoleada };
+  }
+
+  if (actualDiff === predDiff) {
+    return { label: "+Diferença", cls: "bg-orange-500/20 text-orange-400 border border-orange-500/30", goleada: isGoleada };
+  }
+
+  if (actualLoserScore === predLoserScore) {
+    return { label: "+Perdedor", cls: "bg-amber-500/20 text-amber-400 border border-amber-500/30", goleada: isGoleada };
+  }
+
+  return { label: "Resultado", cls: "bg-slate-700 text-slate-300 border border-slate-600", goleada: isGoleada };
 }
 
 export function Profile() {
@@ -184,7 +224,9 @@ export function Profile() {
               const encerrado = match.status === "FINISHED";
               const resultadoReal =
                 encerrado && match.homeScore != null ? `${match.homeScore} × ${match.awayScore}` : null;
-              const badge = encerrado && item.points != null ? badgePontos(item.points) : null;
+              const badge = encerrado && item.points != null
+                ? badgePontos(item.points, item.homeScore, item.awayScore, match.homeScore, match.awayScore)
+                : null;
 
               return (
                 <div
@@ -212,10 +254,17 @@ export function Profile() {
                   </div>
 
                   {badge ? (
-                    <div className="shrink-0 flex flex-col items-center gap-1">
-                      <span className={`px-2.5 py-1 rounded-lg text-xs font-bold border ${badge.cls}`}>
-                        {badge.label}
-                      </span>
+                    <div className="shrink-0 flex flex-col items-end gap-1">
+                      <div className="flex items-center gap-1">
+                        {badge.goleada && (
+                          <span className="px-1.5 py-1 rounded-lg text-xs font-bold border bg-emerald-500/20 text-emerald-400 border-emerald-500/30">
+                            +gol
+                          </span>
+                        )}
+                        <span className={`px-2.5 py-1 rounded-lg text-xs font-bold border ${badge.cls}`}>
+                          {badge.label}
+                        </span>
+                      </div>
                       <span className="text-xs text-slate-600 font-bold">{item.points} pts</span>
                     </div>
                   ) : !encerrado ? (
