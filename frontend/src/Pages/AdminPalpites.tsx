@@ -33,7 +33,6 @@ function getPointsBreakdown(
   }
 
   if (actualWinner !== predWinner) return { label: "Errou", cls: "bg-slate-800 text-slate-500 border-slate-700", goleada: false };
-  if (actualWinner === "DRAW") return { label: "Resultado", cls: "bg-slate-700 text-slate-300 border-slate-600", goleada: false };
 
   const isHome = actualWinner === "HOME";
   const actualWinnerScore = isHome ? actualHome : actualAway;
