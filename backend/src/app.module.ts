@@ -3,6 +3,7 @@ import { ScheduleModule } from '@nestjs/schedule';
 import { AdminModule } from './admin/admin.module';
 import { AppController } from './app.controller';
 import { AuthModule } from './auth/auth.module';
+import { KeepAliveModule } from './keep-alive/keep-alive.module';
 import { MatchesModule } from './matches/matches.module';
 import { PredictionsModule } from './predictions/predictions.module';
 import { PrismaModule } from './prisma/prisma.module';
@@ -19,6 +20,7 @@ import { ResultsSyncModule } from './results-sync/results-sync.module';
     RankingModule,
     ResultsSyncModule,
     AdminModule,
+    KeepAliveModule,
   ],
   controllers: [AppController],
   providers: [],
