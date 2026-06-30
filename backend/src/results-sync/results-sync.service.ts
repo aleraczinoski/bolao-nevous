@@ -23,7 +23,12 @@ type FootballDataMatch = {
     crest: string | null;
   };
   score: {
-    fullTime: { home: number | null; away: number | null };
+    winner: string | null;
+    duration: string | null;
+    fullTime:  { home: number | null; away: number | null };
+    halfTime:  { home: number | null; away: number | null } | null;
+    extraTime: { home: number | null; away: number | null } | null;
+    penalties: { home: number | null; away: number | null } | null;
   };
 };
 
@@ -73,8 +78,9 @@ export class ResultsSyncService {
       );
 
       const status = this.mapStatus(match.status);
-      const homeScore = match.score.fullTime.home;
-      const awayScore = match.score.fullTime.away;
+      // extraTime is the cumulative 120-min score; avoids counting penalty goals in the result.
+      const homeScore = match.score.extraTime?.home ?? match.score.fullTime.home;
+      const awayScore = match.score.extraTime?.away ?? match.score.fullTime.away;
 
       const savedMatch = await this.prisma.match.upsert({
         where: { externalId: match.id },
