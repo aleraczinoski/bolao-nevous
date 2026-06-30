@@ -78,9 +78,11 @@ export class ResultsSyncService {
       );
 
       const status = this.mapStatus(match.status);
-      // extraTime is the cumulative 120-min score; avoids counting penalty goals in the result.
-      const homeScore = match.score.extraTime?.home ?? match.score.fullTime.home;
-      const awayScore = match.score.extraTime?.away ?? match.score.fullTime.away;
+      // Use extraTime (cumulative 120-min score) only when the match actually went to ET/penalties,
+      // because the API returns extraTime: {home:0, away:0} even for regular matches.
+      const wentToET = match.score.duration === 'EXTRA_TIME' || match.score.duration === 'PENALTY_SHOOTOUT';
+      const homeScore = wentToET ? (match.score.extraTime?.home ?? match.score.fullTime.home) : match.score.fullTime.home;
+      const awayScore = wentToET ? (match.score.extraTime?.away ?? match.score.fullTime.away) : match.score.fullTime.away;
 
       const savedMatch = await this.prisma.match.upsert({
         where: { externalId: match.id },
